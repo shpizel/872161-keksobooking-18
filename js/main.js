@@ -1,8 +1,8 @@
 'use strict';
 
-var leadingZero = function (number, size = 2) {
+var leadingZero = function (number, size) {
   var s = String(number);
-  while (s.length < size) {
+  while (s.length < (size || 2)) {
     s = "0" + s;
   }
   return s;
@@ -22,7 +22,7 @@ var random = function (min, max) {
   return min + Math.floor(Math.random() * (max - min + 1));
 };
 
-var getRandomChoice = function (array, length = false) {
+var getRandomChoice = function (array, length) {
   return (length) ? shuffle(array).slice(0, length) : array[random(0, array.length - 1)];
 }
 
