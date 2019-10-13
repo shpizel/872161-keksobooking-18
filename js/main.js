@@ -45,7 +45,7 @@ var getRandomNumber = function (min, max) {
 
 var getRandomChoice = function (array, length) {
   return (length) ? shuffle(array).slice(0, length) : array[getRandomNumber(0, array.length - 1)];
-}
+};
 
 var lastAvatarImgIndex = 0;
 var getAvatarImgUrl = function () {
@@ -87,7 +87,7 @@ var getRandomOfferDOMElement = function (offer) {
   img.src = offer.author.avatar;
   img.alt = offer.offer.title;
   return element;
-}
+};
 
 var getRandomOffers = function (quantity) {
   var ret = [];
@@ -105,8 +105,12 @@ var fitMapWithOffers = function (offers) {
   document.querySelector('.map__pins').appendChild(fragment);
 };
 
+var showMapBlock = function () {
+  document.querySelector('.map').classList.remove('map--faded');
+};
+
 var offers = getRandomOffers(QUANTITY);
 fitMapWithOffers(offers);
-document.querySelector('.map').classList.remove('map--faded');
+showMapBlock();
 
 
