@@ -16,6 +16,10 @@ var OFFERS_PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
+var MAP_WIDTH = 1024;
+var PIN_Y_FROM = 130;
+var PIN_Y_TO = 630;
+
 
 var addLeadingZero = function (number, size) {
   var s = String(number);
@@ -68,8 +72,8 @@ var getRandomOffer = function () {
       'photos': getRandomChoice(OFFERS_PHOTOS, getRandomNumber(1, 3)),
     },
     'location': {
-      'x': getRandomNumber(0, 1024),
-      'y': getRandomNumber(130, 630)
+      'x': getRandomNumber(0, MAP_WIDTH),
+      'y': getRandomNumber(PIN_Y_FROM, PIN_Y_TO)
     }
   };
 };
