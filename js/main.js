@@ -118,12 +118,24 @@ var showMapBlock = function () {
 
 var renderCard = function (offerObject) {
   var pluralize = function (count, one, two, three) {
-    if (count <= 1 || (count > 11 && count % 10 === 1)) {
-      return one;
-    } else if ((count > 1 && count <= 4) || (count > 11 && count % 10 > 1 && count % 10 <= 4)) {
+    if (!Number.isInteger(count)) {
       return two;
     }
-    return three;
+    var rem = count % 10;
+    var isStrangeInterval = function () {
+      var lastTwoDigitsNumber = Math.ceil(count / 10 % 10 * 10);
+      return lastTwoDigitsNumber >= 11 && lastTwoDigitsNumber <= 20;
+    };
+
+    if (isStrangeInterval()) {
+      return three;
+    }
+
+    if (rem > 1 && rem < 5) {
+      return two;
+    }
+
+    return (rem === 1) ? one : three;
   };
 
   var card = document.querySelector('#card').content.cloneNode(true);
@@ -156,7 +168,7 @@ var renderCard = function (offerObject) {
   for (i = 0; i < offerObject.offer.photos.length; i++) {
     var photoElement = document.createElement('img');
     photoElement.className = 'popup__photo';
-    photoElement.src = offers[0].offer.photos[i];
+    photoElement.src = offerObject.offer.photos[i];
     photoElement.width = 45;
     photoElement.height = 40;
     photoElement.alt = 'Фотография жилья';
