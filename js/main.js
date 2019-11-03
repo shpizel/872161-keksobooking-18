@@ -27,12 +27,15 @@ var OFFERS_TYPES_MAP = {
 };
 var ENTER_KEY_CODE = 13;
 var BIG_BUTTON_ARROW_HEIGHT = 10;
+var OLD_VERSION = false;
 
 var mapPinsElement = document.querySelector('.map__pins');
 var bigButtonElement = document.querySelector('.map__pin--main');
 var mapElement = document.querySelector('.map');
 var adFormElement = document.querySelector('.ad-form');
+var adFormElementInputs = adFormElement.querySelectorAll('fieldset,input,select');
 var mapFiltersElement = document.querySelector('.map__filters');
+var mapFilterElementInputs = mapFiltersElement.querySelectorAll('fieldset,input,select');
 var adFormGuestsElement = adFormElement.querySelector('select[name=capacity');
 var adFormRoomsElement = adFormElement.querySelector('select[name=rooms]');
 
@@ -113,11 +116,13 @@ var getRandomOffers = function (quantity) {
 };
 
 var fitMapWithOffers = function (offers) {
-  var fragment = document.createDocumentFragment();
-  for (var offerId = 0; offerId < offers.length; offerId++) {
-    fragment.appendChild(getRandomOfferDOMElement(offers[offerId]));
+  if (offers.length > 0) {
+    var fragment = document.createDocumentFragment();
+    for (var offerId = 0; offerId < offers.length; offerId++) {
+      fragment.appendChild(getRandomOfferDOMElement(offers[offerId]));
+    }
+    mapPinsElement.appendChild(fragment);
   }
-  mapPinsElement.appendChild(fragment);
 };
 
 var showMapBlock = function () {
@@ -188,27 +193,7 @@ var renderCard = function (offerObject) {
   document.querySelector('.map').insertBefore(card, document.querySelector('.map__filters-container'));
 };
 
-var disableForm = function (formElement) {
-  var formInputs = formElement.querySelectorAll('fieldset,input,select');
-  for (var i = 0; i < formInputs.length; i++) {
-    var targetElement = (formInputs[i].parentNode.tagName === 'FIELDSET') ? formInputs[i].parentNode : formInputs[i];
-    if (!targetElement.hasAttribute('disabled')) {
-      targetElement.setAttribute('disabled', 'disabled');
-    }
-  }
-};
-
-var enableForm = function (formElement) {
-  var formInputs = formElement.querySelectorAll('fieldset,input,select');
-  for (var i = 0; i < formInputs.length; i++) {
-    var targetElement = (formInputs[i].parentNode.tagName === 'FIELDSET') ? formInputs[i].parentNode : formInputs[i];
-    if (targetElement.hasAttribute('disabled')) {
-      targetElement.removeAttribute('disabled');
-    }
-  }
-};
-
-function getCoords(elem) {
+var getCoords = function (elem) {
   var box = elem.getBoundingClientRect();
 
   return {
@@ -217,11 +202,29 @@ function getCoords(elem) {
     width: box.width,
     height: box.height
   };
-}
+};
 
 var preparePage = function () {
   var mapElementRequiredClass = 'map--faded';
   var adFormRequiredClass = 'ad-form--disabled';
+
+  var disableForm = function (_formInputs) {
+    for (var i = 0; i < _formInputs.length; i++) {
+      var targetElement = (_formInputs[i].parentNode.tagName === 'FIELDSET') ? _formInputs[i].parentNode : _formInputs[i];
+      if (!targetElement.hasAttribute('disabled')) {
+        targetElement.setAttribute('disabled', true);
+      }
+    }
+  };
+
+  var enableForm = function (_formInputs) {
+    for (var i = 0; i < _formInputs.length; i++) {
+      var targetElement = (_formInputs[i].parentNode.tagName === 'FIELDSET') ? _formInputs[i].parentNode : _formInputs[i];
+      if (targetElement.hasAttribute('disabled') && targetElement.disabled) {
+        targetElement.removeAttribute('disabled');
+      }
+    }
+  };
 
   var getBigButtonCoordinates = function () {
     var coords = getCoords(bigButtonElement);
@@ -233,8 +236,8 @@ var preparePage = function () {
   };
 
   var enablePage = function () {
-    enableForm(adFormElement);
-    enableForm(mapFiltersElement);
+    enableForm(adFormElementInputs);
+    enableForm(mapFilterElementInputs);
 
     if (adFormElement.classList.contains(adFormRequiredClass)) {
       adFormElement.classList.remove(adFormRequiredClass);
@@ -277,26 +280,33 @@ var preparePage = function () {
       if (rooms !== guests) {
         adFormGuestsElement.setCustomValidity('Некорректное число гостей');
         adFormGuestsElement.reportValidity();
-        return false;
+        return;
       }
     } else {
       if (guests > 0) {
         adFormGuestsElement.setCustomValidity('Ожидается выбор "Не для гостей"');
         adFormGuestsElement.reportValidity();
-        return false;
+        return;
       }
     }
+
     adFormGuestsElement.setCustomValidity('');
-    return true;
   };
 
-  adFormElement.addEventListener('submit', checkRoomsAndGuestsCount);
+  adFormElement.addEventListener('submit', function (evt) {
+    if (!evt.target.checkValidity()) {
+      event.preventDefault();
+    }
+  });
   adFormGuestsElement.addEventListener('change', checkRoomsAndGuestsCount);
   adFormRoomsElement.addEventListener('change', checkRoomsAndGuestsCount);
 };
 
 preparePage();
-var offers = getRandomOffers(QUANTITY);
-fitMapWithOffers(offers);
-// renderCard(offers[0]);
-// showMapBlock();
+
+if (OLD_VERSION) {
+  var offers = getRandomOffers(QUANTITY);
+  fitMapWithOffers(offers);
+  renderCard(offers[0]);
+  showMapBlock();
+}
