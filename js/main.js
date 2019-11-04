@@ -28,6 +28,7 @@ var OFFERS_TYPES_MAP = {
 var ENTER_KEY_CODE = 13;
 var BIG_BUTTON_ARROW_HEIGHT = 10;
 var OLD_VERSION = false;
+var PAGE_ENABLED = false;
 
 var mapPinsElement = document.querySelector('.map__pins');
 var bigButtonElement = document.querySelector('.map__pin--main');
@@ -68,6 +69,9 @@ var getRandomChoice = function (array, length) {
 var lastAvatarImgIndex = 0;
 var getAvatarImgUrl = function () {
   var url = 'img/avatars/user' + addLeadingZero(++lastAvatarImgIndex) + '.png';
+  if (lastAvatarImgIndex >= 8) {
+    lastAvatarImgIndex = 0;
+  }
   return url;
 };
 
@@ -246,6 +250,12 @@ var preparePage = function () {
     if (mapElement.classList.contains(mapElementRequiredClass)) {
       mapElement.classList.remove(mapElementRequiredClass);
     }
+
+    if (!PAGE_ENABLED) {
+      var offers = getRandomOffers(QUANTITY);
+      fitMapWithOffers(offers);
+      PAGE_ENABLED = true;
+    }
   };
 
   bigButtonElement.addEventListener('mousedown', function () {
@@ -273,21 +283,28 @@ var preparePage = function () {
   disableForm(mapFiltersElement);
 
   var checkRoomsAndGuestsCount = function () {
-    var guests = parseInt(adFormGuestsElement.value, 10);
     var rooms = parseInt(adFormRoomsElement.value, 10);
+    var guests = parseInt(adFormGuestsElement.value, 10);
 
-    if (rooms <= 3) {
-      if (rooms !== guests) {
+    var failed = false;
+    if (rooms === 1 && rooms !== guests) {
+      adFormGuestsElement.setCustomValidity('Некорректное число гостей');
+      adFormGuestsElement.reportValidity();
+      failed = true;
+    } else if (rooms > 1 && rooms <= 3) {
+      if (!(guests >= 1 && guests <= rooms)) {
         adFormGuestsElement.setCustomValidity('Некорректное число гостей');
         adFormGuestsElement.reportValidity();
-        return;
+        failed = true;
       }
-    } else {
-      if (guests > 0) {
-        adFormGuestsElement.setCustomValidity('Ожидается выбор "Не для гостей"');
-        adFormGuestsElement.reportValidity();
-        return;
-      }
+    } else if (guests !== 0) {
+      adFormGuestsElement.setCustomValidity('Ожидается выбор "Не для гостей"');
+      adFormGuestsElement.reportValidity();
+      failed = true;
+    }
+
+    if (failed) {
+      return;
     }
 
     adFormGuestsElement.setCustomValidity('');
