@@ -25,6 +25,14 @@ var OFFERS_TYPES_MAP = {
   'house': 'Дом',
   'palace': 'Дворец'
 };
+
+var MIN_PRICE_BY_TYPE = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
+
 var ENTER_KEY_CODE = 13;
 var ESC_KEYCODE = 27;
 var BIG_BUTTON_ARROW_HEIGHT = 10;
@@ -144,13 +152,25 @@ var fitMapWithOffers = function (offers) {
   }
 };
 
-var clearCards = function () {
-  mapElement.querySelectorAll('.map__card').forEach(function (el) {
-    el.parentNode.removeChild(el);
-  });
-};
-
 var renderCard = function (offerObject) {
+  var clearCards = function () {
+    var deleted = false;
+    mapElement.querySelectorAll('.map__card').forEach(function (el) {
+      el.parentNode.removeChild(el);
+      deleted = true;
+    });
+
+    if (deleted) {
+      document.removeEventListener('keydown', clearCardsIfEscapePressed);
+    }
+  };
+
+  var clearCardsIfEscapePressed = function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      clearCards();
+    }
+  };
+
   var pluralize = function (count, one, two, three) {
     if (!Number.isInteger(count)) {
       return two;
@@ -171,6 +191,8 @@ var renderCard = function (offerObject) {
 
     return (rem === 1) ? one : three;
   };
+
+  document.addEventListener('keydown', clearCardsIfEscapePressed);
 
   var card = document.querySelector('#card').content.cloneNode(true);
   card.querySelector('.popup__title').textContent = offerObject.offer.title;
@@ -213,6 +235,7 @@ var renderCard = function (offerObject) {
   card.querySelector('.popup__close').addEventListener('click', clearCards);
 
   clearCards();
+
   document.querySelector('.map').insertBefore(card, document.querySelector('.map__filters-container'));
 };
 
@@ -341,27 +364,16 @@ var preparePage = function () {
   adFormTypeElement.addEventListener('change', function () {
     var value = adFormTypeElement.value;
 
-    var minValuesMap = {
-      bungalo: 0,
-      flat: 1000,
-      house: 5000,
-      palace: 10000
-    };
-
-    adFormPriceElement.setAttribute('min', minValuesMap[value]);
-    adFormPriceElement.setAttribute('placeholder', minValuesMap[value]);
+    if (MIN_PRICE_BY_TYPE.hasOwnProperty(value)) {
+      adFormPriceElement.setAttribute('min', MIN_PRICE_BY_TYPE[value]);
+      adFormPriceElement.setAttribute('placeholder', MIN_PRICE_BY_TYPE[value]);
+    }
   });
   adFormTimeinElement.addEventListener('change', function () {
     adFormTimeoutElement.value = adFormTimeinElement.value;
   });
   adFormTimeoutElement.addEventListener('change', function () {
     adFormTimeinElement.value = adFormTimeoutElement.value;
-  });
-
-  document.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ESC_KEYCODE) {
-      clearCards();
-    }
   });
 };
 
