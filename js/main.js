@@ -297,7 +297,7 @@ var preparePage = function () {
         adFormGuestsElement.reportValidity();
         failed = true;
       }
-    } else if (guests !== 0) {
+    } else if (rooms > 3 && guests !== 0) {
       adFormGuestsElement.setCustomValidity('Ожидается выбор "Не для гостей"');
       adFormGuestsElement.reportValidity();
       failed = true;
