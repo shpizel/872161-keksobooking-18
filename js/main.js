@@ -346,11 +346,9 @@ var preparePage = function () {
       failed = true;
     }
 
-    if (failed) {
-      return;
+    if (!failed) {
+      adFormGuestsElement.setCustomValidity('');
     }
-
-    adFormGuestsElement.setCustomValidity('');
   };
 
   adFormElement.addEventListener('submit', function (evt) {
