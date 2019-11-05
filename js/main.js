@@ -126,6 +126,8 @@ var getRandomOfferDOMElement = function (offer) {
   });
 
   element.addEventListener('keydown', function (evt) {
+    /* чтобы не срабатывал клик */
+    evt.preventDefault();
     if (evt.keyCode === ENTER_KEY_CODE) {
       renderCard(offer);
     }
@@ -153,21 +155,19 @@ var fitMapWithOffers = function (offers) {
 };
 
 var renderCard = function (offerObject) {
-  var clearCards = function () {
-    var deleted = false;
-    mapElement.querySelectorAll('.map__card').forEach(function (el) {
-      el.parentNode.removeChild(el);
-      deleted = true;
-    });
+  var renderedCard = null;
 
-    if (deleted) {
-      document.removeEventListener('keydown', clearCardsIfEscapePressed);
+  var removeCard = function () {
+    if (renderedCard) {
+      renderedCard.parentNode.removeChild(renderedCard);
+      document.removeEventListener('keydown', onEscapePressed);
+      renderedCard = null;
     }
   };
 
-  var clearCardsIfEscapePressed = function (evt) {
+  var onEscapePressed = function (evt) {
     if (evt.keyCode === ESC_KEYCODE) {
-      clearCards();
+      removeCard();
     }
   };
 
@@ -191,8 +191,6 @@ var renderCard = function (offerObject) {
 
     return (rem === 1) ? one : three;
   };
-
-  document.addEventListener('keydown', clearCardsIfEscapePressed);
 
   var card = document.querySelector('#card').content.cloneNode(true);
   card.querySelector('.popup__title').textContent = offerObject.offer.title;
@@ -232,11 +230,11 @@ var renderCard = function (offerObject) {
   }
 
   card.querySelector('.popup__avatar').src = offerObject.author.avatar;
-  card.querySelector('.popup__close').addEventListener('click', clearCards);
+  card.querySelector('.popup__close').addEventListener('click', removeCard);
 
-  clearCards();
-
-  document.querySelector('.map').insertBefore(card, document.querySelector('.map__filters-container'));
+  mapElement.insertBefore(card, document.querySelector('.map__filters-container'));
+  renderedCard = mapElement.querySelector('.map__card');
+  document.addEventListener('keydown', onEscapePressed);
 };
 
 var getCoords = function (elem) {
