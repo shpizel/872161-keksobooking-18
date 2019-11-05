@@ -25,9 +25,17 @@ var OFFERS_TYPES_MAP = {
   'house': 'Дом',
   'palace': 'Дворец'
 };
+
+var MIN_PRICE_BY_TYPE = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
+
 var ENTER_KEY_CODE = 13;
+var ESC_KEYCODE = 27;
 var BIG_BUTTON_ARROW_HEIGHT = 10;
-var OLD_VERSION = false;
 var PAGE_ENABLED = false;
 
 var mapPinsElement = document.querySelector('.map__pins');
@@ -39,6 +47,11 @@ var mapFiltersElement = document.querySelector('.map__filters');
 var mapFilterElementInputs = mapFiltersElement.querySelectorAll('fieldset,input,select');
 var adFormGuestsElement = adFormElement.querySelector('select[name=capacity');
 var adFormRoomsElement = adFormElement.querySelector('select[name=rooms]');
+var adFormTypeElement = adFormElement.querySelector('select[name=type]');
+var adFormPriceElement = adFormElement.querySelector('input[name=price]');
+
+var adFormTimeinElement = adFormElement.querySelector('select[name=timein]');
+var adFormTimeoutElement = adFormElement.querySelector('select[name=timeout]');
 
 var addLeadingZero = function (number, size) {
   var s = String(number);
@@ -108,6 +121,18 @@ var getRandomOfferDOMElement = function (offer) {
   var img = element.querySelector('img');
   img.src = offer.author.avatar;
   img.alt = offer.offer.title;
+  element.addEventListener('click', function () {
+    renderCard(offer);
+  });
+
+  element.addEventListener('keydown', function (evt) {
+    /* чтобы не срабатывал клик */
+    evt.preventDefault();
+    if (evt.keyCode === ENTER_KEY_CODE) {
+      renderCard(offer);
+    }
+  });
+
   return element;
 };
 
@@ -129,11 +154,23 @@ var fitMapWithOffers = function (offers) {
   }
 };
 
-var showMapBlock = function () {
-  document.querySelector('.map').classList.remove('map--faded');
-};
-
 var renderCard = function (offerObject) {
+  var renderedCard = null;
+
+  var removeCard = function () {
+    if (renderedCard) {
+      renderedCard.parentNode.removeChild(renderedCard);
+      document.removeEventListener('keydown', onEscapePressed);
+      renderedCard = null;
+    }
+  };
+
+  var onEscapePressed = function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      removeCard();
+    }
+  };
+
   var pluralize = function (count, one, two, three) {
     if (!Number.isInteger(count)) {
       return two;
@@ -193,8 +230,11 @@ var renderCard = function (offerObject) {
   }
 
   card.querySelector('.popup__avatar').src = offerObject.author.avatar;
+  card.querySelector('.popup__close').addEventListener('click', removeCard);
 
-  document.querySelector('.map').insertBefore(card, document.querySelector('.map__filters-container'));
+  mapElement.insertBefore(card, document.querySelector('.map__filters-container'));
+  renderedCard = mapElement.querySelector('.map__card');
+  document.addEventListener('keydown', onEscapePressed);
 };
 
 var getCoords = function (elem) {
@@ -251,6 +291,7 @@ var preparePage = function () {
       mapElement.classList.remove(mapElementRequiredClass);
     }
 
+    /* todo: форма после отправки должна возвращаться в исходное состояние */
     if (!PAGE_ENABLED) {
       var offers = getRandomOffers(QUANTITY);
       fitMapWithOffers(offers);
@@ -303,27 +344,33 @@ var preparePage = function () {
       failed = true;
     }
 
-    if (failed) {
-      return;
+    if (!failed) {
+      adFormGuestsElement.setCustomValidity('');
     }
-
-    adFormGuestsElement.setCustomValidity('');
   };
 
   adFormElement.addEventListener('submit', function (evt) {
     if (!evt.target.checkValidity()) {
-      event.preventDefault();
+      evt.preventDefault();
     }
   });
   adFormGuestsElement.addEventListener('change', checkRoomsAndGuestsCount);
   adFormRoomsElement.addEventListener('change', checkRoomsAndGuestsCount);
+
+  adFormTypeElement.addEventListener('change', function () {
+    var value = adFormTypeElement.value;
+
+    if (MIN_PRICE_BY_TYPE.hasOwnProperty(value)) {
+      adFormPriceElement.setAttribute('min', MIN_PRICE_BY_TYPE[value]);
+      adFormPriceElement.setAttribute('placeholder', MIN_PRICE_BY_TYPE[value]);
+    }
+  });
+  adFormTimeinElement.addEventListener('change', function () {
+    adFormTimeoutElement.value = adFormTimeinElement.value;
+  });
+  adFormTimeoutElement.addEventListener('change', function () {
+    adFormTimeinElement.value = adFormTimeoutElement.value;
+  });
 };
 
 preparePage();
-
-if (OLD_VERSION) {
-  var offers = getRandomOffers(QUANTITY);
-  fitMapWithOffers(offers);
-  renderCard(offers[0]);
-  showMapBlock();
-}
