@@ -1,13 +1,6 @@
 'use strict';
 
 (function () {
-  /* Constants START */
-  var module = 'tools';
-
-  var DEBUG = !true;
-  var _console = console; /* dirty hack */
-  /* Constants END */
-
   /* Code START */
   var getCoords = function (element) {
     var box = element.getBoundingClientRect();
@@ -18,16 +11,6 @@
       width: box.width,
       height: box.height
     };
-  };
-
-  var isEmpty = function (variable) {
-    return !variable;
-  };
-
-  var assertEmpty = function (variable) {
-    if (isEmpty(variable)) {
-      throw new Error('Variable is empty :(');
-    }
   };
 
   var getRandomNumber = function (min, max) {
@@ -56,12 +39,6 @@
     return s;
   };
 
-  var log = function () {
-    if (DEBUG) {
-      _console.log.apply(null, Array.from(arguments));
-    }
-  };
-
   var pluralize = function (count, one, two, three) {
     if (!Number.isInteger(count)) {
       return two;
@@ -83,14 +60,11 @@
     return (rem === 1) ? one : three;
   };
 
-  window[module] = {
-    log: log,
-    getCoords: getCoords,
-    isEmpty: isEmpty,
-    assertEmpty: assertEmpty,
+  window.tools = {
+    shuffle: shuffle,
     getRandomNumber: getRandomNumber,
     getRandomChoice: getRandomChoice,
-    shuffle: shuffle,
+    getCoords: getCoords,
     addLeadingZero: addLeadingZero,
     pluralize: pluralize,
   };

@@ -2,12 +2,7 @@
 
 (function () {
   /* Constants START */
-  var module = 'pin'; // отвечает за создание пина — метки на карте
-
-  // var log = window.tools.log;
-  var assertEmpty = window.tools.assertEmpty;
   var offerDOMElementTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-  assertEmpty(offerDOMElementTemplate);
   /* Constants END */
 
   /* Code START */
@@ -35,7 +30,7 @@
     return element;
   };
 
-  window[module] = {
+  window.pin = {
     getOfferPinElement: getOfferPinElement
   };
   /* Code END */

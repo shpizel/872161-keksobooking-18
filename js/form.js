@@ -2,8 +2,6 @@
 
 (function () {
   /* Constants START */
-  var module = 'form'; // работает с формой объявления
-
   var MIN_PRICE_BY_TYPE = {
     bungalo: 0,
     flat: 1000,
@@ -11,47 +9,24 @@
     palace: 10000
   };
 
-  var assertEmpty = window.tools.assertEmpty;
-
   var adFormRequiredClass = 'ad-form--disabled';
 
   var adFormElement = document.querySelector('.ad-form');
-  assertEmpty(adFormElement);
-
   var adFormElementInputs = adFormElement.querySelectorAll('fieldset,input,select');
-  assertEmpty(adFormElementInputs);
+  var adFormGuestsElement = adFormElement.querySelector('select[name=capacity');
+  var adFormRoomsElement = adFormElement.querySelector('select[name=rooms]');
+  var adFormTypeElement = adFormElement.querySelector('select[name=type]');
+  var adFormPriceElement = adFormElement.querySelector('input[name=price]');
+  var adFormAddressElement = adFormElement.querySelector('input[name=address]');
+  var adFormTimeinElement = adFormElement.querySelector('select[name=timein]');
+  var adFormTimeoutElement = adFormElement.querySelector('select[name=timeout]');
 
   var mapFiltersElement = document.querySelector('.map__filters');
-  assertEmpty(mapFiltersElement);
-
   var mapFiltersElementInputs = mapFiltersElement.querySelectorAll('fieldset,input,select');
-  assertEmpty(mapFiltersElementInputs);
-
-  var adFormGuestsElement = adFormElement.querySelector('select[name=capacity');
-  assertEmpty(adFormGuestsElement);
-
-  var adFormRoomsElement = adFormElement.querySelector('select[name=rooms]');
-  assertEmpty(adFormRoomsElement);
-
-  var adFormTypeElement = adFormElement.querySelector('select[name=type]');
-  assertEmpty(adFormTypeElement);
-
-  var adFormPriceElement = adFormElement.querySelector('input[name=price]');
-  assertEmpty(adFormPriceElement);
-
-  var adFormAddressElement = adFormElement.querySelector('input[name=address]');
-  assertEmpty(adFormAddressElement);
-
-  var adFormTimeinElement = adFormElement.querySelector('select[name=timein]');
-  assertEmpty(adFormTimeinElement);
-
-  var adFormTimeoutElement = adFormElement.querySelector('select[name=timeout]');
-  assertEmpty(adFormTimeoutElement);
   /* Constants END */
 
   /* Code START */
   var disableElements = function (elements) {
-    assertEmpty(elements);
     elements.forEach(function (element) {
       var targetElement = (element.parentNode.tagName === 'FIELDSET') ? element.parentNode : element;
       if (!targetElement.hasAttribute('disabled')) {
@@ -61,7 +36,6 @@
   };
 
   var enableElements = function (elements) {
-    assertEmpty(elements);
     elements.forEach(function (element) {
       var targetElement = (element.parentNode.tagName === 'FIELDSET') ? element.parentNode : element;
       if (targetElement.hasAttribute('disabled') && targetElement.disabled) {
@@ -124,7 +98,6 @@
 
     adFormTypeElement.addEventListener('change', function () {
       var value = adFormTypeElement.value;
-
       if (MIN_PRICE_BY_TYPE.hasOwnProperty(value)) {
         adFormPriceElement.setAttribute('min', MIN_PRICE_BY_TYPE[value]);
         adFormPriceElement.setAttribute('placeholder', MIN_PRICE_BY_TYPE[value]);
@@ -140,7 +113,7 @@
     });
   };
 
-  window[module] = {
+  window.form = {
     adFormAddressElement: adFormAddressElement,
     enableForms: enableForms
   };

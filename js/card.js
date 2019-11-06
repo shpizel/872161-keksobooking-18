@@ -1,28 +1,20 @@
 'use strict';
 
 (function () {
-  /* Constants START */
-  var module = 'card'; // отвечает за создание карточки объявлений
-
-  var log = window.tools.log;
-  var assertEmpty = window.tools.assertEmpty;
-  var pluralize = window.tools.pluralize;
-
-  var template = document.querySelector('#card').content;
-  assertEmpty(template);
-
+  /* Constants START */// отвечает за создание карточки объявлений
   var OFFERS_TYPES_MAP = {
     'flat': 'Квартира',
     'bungalo': 'Бунгало',
     'house': 'Дом',
     'palace': 'Дворец'
   };
+
+  var pluralize = window.tools.pluralize;
+  var template = document.querySelector('#card').content;
   /* Constants END */
 
   /* Code START */
   var getCard = function (offerObject) {
-    log('getCard executed');
-
     var card = template.cloneNode(true);
     card.querySelector('.popup__title').textContent = offerObject.offer.title;
     card.querySelector('.popup__text--address').textContent = offerObject.offer.address;
@@ -73,7 +65,7 @@
     return card;
   };
 
-  window[module] = {
+  window.card = {
     getCard: getCard
   };
   /* Code END */

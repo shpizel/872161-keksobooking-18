@@ -2,13 +2,6 @@
 
 (function () {
   /* Constants START */
-  var module = 'data'; // создаёт данные
-
-  var log = window.tools.log;
-  var getRandomNumber = window.tools.getRandomNumber;
-  var addLeadingZero = window.tools.addLeadingZero;
-  var getRandomChoice = window.tools.getRandomChoice;
-
   var QUANTITY = 8;
   var OFFER_PRICE_FROM = 1000;
   var OFFER_PRICE_TO = 50000;
@@ -28,6 +21,10 @@
   var MAP_WIDTH = 1024;
   var PIN_Y_FROM = 130;
   var PIN_Y_TO = 630;
+
+  var getRandomNumber = window.tools.getRandomNumber;
+  var addLeadingZero = window.tools.addLeadingZero;
+  var getRandomChoice = window.tools.getRandomChoice;
   /* Constants END */
 
   /* Variables START */
@@ -70,8 +67,6 @@
   };
 
   var getRandomOffers = function (quantity) {
-    log('getRandomOffers executed');
-
     var ret = [];
     for (var i = 0; i < quantity; i++) {
       ret.push(getRandomOffer());
@@ -79,7 +74,7 @@
     return ret;
   };
 
-  window[module] = {
+  window.data = {
     randomOffers: getRandomOffers(QUANTITY),
   };
   /* CODE END */
