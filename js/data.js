@@ -22,6 +22,8 @@
   var PIN_Y_FROM = 130;
   var PIN_Y_TO = 630;
 
+  var OFFERS_URL = 'https://js.dump.academy/keksobooking/data';
+
   var getRandomNumber = window.tools.getRandomNumber;
   var addLeadingZero = window.tools.addLeadingZero;
   var getRandomChoice = window.tools.getRandomChoice;
@@ -74,8 +76,16 @@
     return ret;
   };
 
+  var getOffers = function (onSuccess, onError, quantity) {
+    var _onSuccess = function (data) {
+      onSuccess(data.slice(0, quantity || QUANTITY));
+    };
+    window.urllib.request(_onSuccess, onError)(OFFERS_URL);
+  };
+
   window.data = {
     randomOffers: getRandomOffers(QUANTITY),
+    getOffers: getOffers
   };
   /* CODE END */
 })();

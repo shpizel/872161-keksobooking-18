@@ -11,6 +11,7 @@
   var mapElement = document.querySelector('.map');
   var mapPinsElement = mapElement.querySelector('.map__pins');
   var bigButtonElement = mapPinsElement.querySelector('.map__pin--main');
+  var errorTemplate = document.querySelector('#error').content;
   /* Constants END */
 
   /* Variables START */
@@ -68,11 +69,35 @@
 
   var initializeMap = function () {
     var enablePage = function () {
-      if (mapElement.classList.contains(mapElementRequiredClass)) {
-        mapElement.classList.remove(mapElementRequiredClass);
-      }
-      fitMapWithOffers(window.data.randomOffers);
-      window.form.enableForms();
+      var onSuccess = function (offers) {
+        var error = document.querySelector('main > .error');
+        if (error) {
+          error.parentNode.removeChild(error);
+        }
+
+        if (mapElement.classList.contains(mapElementRequiredClass)) {
+          mapElement.classList.remove(mapElementRequiredClass);
+        }
+        fitMapWithOffers(offers);
+        window.form.enableForms();
+      };
+
+      var onError = function (/* errorCode, errorMsg */) {
+        var error = document.querySelector('main > .error');
+        if (!error) {
+          var errorElement = errorTemplate.cloneNode(true);
+          errorElement.querySelector('.error__button').addEventListener('click', function () {
+            makeOffersRequest();
+          });
+          document.querySelector('main').appendChild(errorElement);
+        }
+      };
+
+      var makeOffersRequest = function () {
+        window.data.getOffers(onSuccess, onError);
+      };
+
+      makeOffersRequest();
     };
 
     var fillAdFormAddress = function () {
