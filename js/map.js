@@ -17,6 +17,7 @@
   /* Variables START */
   var renderedCard;
   var mapElementCoords = window.tools.getCoords(mapElement);
+  var pageReady = false;
   /* Variabled END */
 
   /* Code START */
@@ -80,6 +81,8 @@
         }
         fitMapWithOffers(offers);
         window.form.enableForms();
+
+        pageReady = true;
       };
 
       var onError = function (/* errorCode, errorMsg */) {
@@ -97,7 +100,9 @@
         window.data.getOffers(onSuccess, onError);
       };
 
-      makeOffersRequest();
+      if (!pageReady) {
+        makeOffersRequest();
+      }
     };
 
     var fillAdFormAddress = function () {
