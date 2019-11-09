@@ -11,7 +11,6 @@
   var mapElement = document.querySelector('.map');
   var mapPinsElement = mapElement.querySelector('.map__pins');
   var bigButtonElement = mapPinsElement.querySelector('.map__pin--main');
-  var errorTemplate = document.querySelector('#error').content;
   /* Constants END */
 
   /* Variables START */
@@ -31,12 +30,31 @@
     }
   };
 
+  var centerPin = function () {
+    var bigButtonCoordinates = window.tools.getCoords(bigButtonElement);
+    bigButtonElement.style.left = Math.ceil(mapElementCoords.width / 2 - bigButtonCoordinates.width / 2) + 'px';
+    bigButtonElement.style.top = Math.ceil(mapElementCoords.height / 2 - bigButtonCoordinates.height / 2) + 'px';
+    fillAdFormAddress();
+  };
+
+  var clearMapPins = function () {
+    mapPinsElement.querySelectorAll('.map__pin').forEach(function (element) {
+      if (!element.classList.contains('map__pin--main')) {
+        element.parentElement.removeChild(element);
+      }
+    });
+  };
+
   var getBigButtonCoordinates = function () {
     var bigButtonElementCoords = window.tools.getCoords(bigButtonElement);
     return {
       left: Math.ceil(bigButtonElement.offsetLeft + bigButtonElementCoords.width / 2),
       top: Math.ceil(bigButtonElement.offsetTop + bigButtonElementCoords.height + BIG_BUTTON_ARROW_HEIGHT)
     };
+  };
+
+  var fillAdFormAddress = function () {
+    window.form.adFormAddressElement.value = Object.values(getBigButtonCoordinates()).join(', ');
   };
 
   var showCard = function (card) {
@@ -61,13 +79,19 @@
     }
   };
 
+  var disablePage = function () {
+    if (!mapElement.classList.contains(mapElementRequiredClass)) {
+      mapElement.classList.add(mapElementRequiredClass);
+    }
+    window.form.disableForms();
+
+    pageReady = false;
+  };
+
   var initializeMap = function () {
     var enablePage = function () {
       var onSuccess = function (offers) {
-        var error = document.querySelector('main > .error');
-        if (error) {
-          error.parentNode.removeChild(error);
-        }
+        window.dialogs.closeErrorDialog();
 
         if (mapElement.classList.contains(mapElementRequiredClass)) {
           mapElement.classList.remove(mapElementRequiredClass);
@@ -79,14 +103,9 @@
       };
 
       var onError = function (/* errorCode, errorMsg */) {
-        var error = document.querySelector('main > .error');
-        if (!error) {
-          var errorElement = errorTemplate.cloneNode(true);
-          errorElement.querySelector('.error__button').addEventListener('click', function () {
-            makeOffersRequest();
-          });
-          document.querySelector('main').appendChild(errorElement);
-        }
+        window.dialogs.showErrorDialog(function () {
+          makeOffersRequest();
+        });
       };
 
       var makeOffersRequest = function () {
@@ -96,10 +115,6 @@
       if (!pageReady) {
         makeOffersRequest();
       }
-    };
-
-    var fillAdFormAddress = function () {
-      window.form.adFormAddressElement.value = Object.values(getBigButtonCoordinates()).join(', ');
     };
 
     bigButtonElement.addEventListener('mousedown', function (evt) {
@@ -190,12 +205,14 @@
         document.removeEventListener('mousemove', onMouseMove);
         bigButtonElement.removeEventListener('mouseup', onMouseUp);
         document.removeEventListener('mouseup', onMouseUp);
+        document.removeEventListener('contextmenu', onMouseUp);
       };
 
       bigButtonElement.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mousemove', onMouseMove);
       bigButtonElement.addEventListener('mouseup', onMouseUp);
       document.addEventListener('mouseup', onMouseUp);
+      document.addEventListener('contextmenu', onMouseUp);
       enablePage();
     });
 
@@ -213,11 +230,15 @@
       mapElement.classList.add(mapElementRequiredClass);
     }
 
-    fillAdFormAddress();
+    centerPin();
+    // fillAdFormAddress();
   };
 
   window.map = {
-    showCard: showCard
+    showCard: showCard,
+    clearMapPins: clearMapPins,
+    centerPin: centerPin,
+    disablePage: disablePage
   };
 
   initializeMap();

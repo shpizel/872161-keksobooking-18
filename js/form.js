@@ -53,6 +53,15 @@
     }
   };
 
+  var disableForms = function () {
+    disableElements(adFormElementInputs);
+    disableElements(mapFiltersElementInputs);
+
+    if (!adFormElement.classList.contains(adFormRequiredClass)) {
+      adFormElement.classList.add(adFormRequiredClass);
+    }
+  };
+
   var checkRoomsAndGuestsCount = function () {
     var rooms = parseInt(adFormRoomsElement.value, 10);
     var guests = parseInt(adFormGuestsElement.value, 10);
@@ -88,6 +97,26 @@
       if (!evt.target.checkValidity()) {
         evt.preventDefault();
       }
+
+      /*
+      evt.preventDefault();
+      if (evt.target.checkValidity()) {
+        var onSuccess = function () {
+          adFormElement.reset();
+          window.map.clearMapPins();
+          window.map.centerPin();
+          window.map.disablePage();
+          window.dialogs.showSuccessDialog();
+        };
+        var onError = function () {
+          window.dialogs.showErrorDialog(sendFormData);
+        };
+        var Request = new window.urllib.Request(onSuccess, onError);
+        var sendFormData = function () {
+          Request.exec(adFormElement.action, 'POST', new FormData(adFormElement));
+        };
+        sendFormData();
+      }*/
     });
 
     disableElements(adFormElementInputs);
@@ -115,7 +144,8 @@
 
   window.form = {
     adFormAddressElement: adFormAddressElement,
-    enableForms: enableForms
+    enableForms: enableForms,
+    disableForms: disableForms
   };
 
   initializeForms();
