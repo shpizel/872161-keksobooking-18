@@ -5,19 +5,16 @@
   var DEFAULT_TIMEOUT = 5000;
   var DEFAULT_RESPONSE_TYPE = 'json';
   var DEFAULT_METHOD = 'GET';
-  var DEFAULT_ASYNC = true;
   /* Constants END */
 
   /* Code START */
-  var request = function (onSuccess, onError, responseType, async, timeout) {
+  var Request = function (onSuccess, onError, responseType, timeout) {
     var onErrorWrapper = function () {
       return onError(xhr.status, xhr.statusText);
     };
 
     var xhr = new XMLHttpRequest();
-    if (!async) {
-      xhr.responseType = responseType || DEFAULT_RESPONSE_TYPE;
-    }
+    xhr.responseType = responseType || DEFAULT_RESPONSE_TYPE;
     xhr.timeout = timeout || DEFAULT_TIMEOUT;
 
     xhr.addEventListener('load', function () {
@@ -31,14 +28,26 @@
     xhr.addEventListener('error', onErrorWrapper);
     xhr.addEventListener('timeout', onErrorWrapper);
 
-    return function (url, method, payload) {
-      xhr.open(method || DEFAULT_METHOD, url, (async === undefined) ? DEFAULT_ASYNC : async);
-      xhr.send(payload);
-    };
+    this.xhr = xhr;
+  };
+
+  /*
+  Request.prototype.setTimeout = function (timeout) {
+    this.xhr.timeout = timeout;
+  };
+
+  Request.prototype.setResponseType = function (responseType) {
+    this.xhr.responseType = responseType;
+  };
+  */
+
+  Request.prototype.exec = function (url, method, payload) {
+    this.xhr.open(method || DEFAULT_METHOD, url);
+    this.xhr.send(payload);
   };
 
   window.urllib = {
-    request: request
+    Request: Request
   };
   /* Code END */
 }());

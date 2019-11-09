@@ -33,16 +33,9 @@
 
   var getBigButtonCoordinates = function () {
     var bigButtonElementCoords = window.tools.getCoords(bigButtonElement);
-    if (mapElement.classList.contains(mapElementRequiredClass)) {
-      return {
-        left: Math.ceil(bigButtonElementCoords.left + bigButtonElementCoords.width / 2),
-        top: Math.ceil(bigButtonElementCoords.top + bigButtonElementCoords.height / 2)
-      };
-    }
-
     return {
-      left: Math.ceil(bigButtonElementCoords.left + bigButtonElementCoords.width / 2),
-      top: Math.ceil(bigButtonElementCoords.top + bigButtonElementCoords.height + BIG_BUTTON_ARROW_HEIGHT)
+      left: Math.ceil(bigButtonElement.offsetLeft + bigButtonElementCoords.width / 2),
+      top: Math.ceil(bigButtonElement.offsetTop + bigButtonElementCoords.height + BIG_BUTTON_ARROW_HEIGHT)
     };
   };
 
@@ -97,7 +90,7 @@
       };
 
       var makeOffersRequest = function () {
-        window.data.getOffers(onSuccess, onError);
+        window.api.getOffers(onSuccess, onError);
       };
 
       if (!pageReady) {
@@ -113,15 +106,14 @@
       evt.preventDefault();
 
       var bigButtonElementCoords = window.tools.getCoords(bigButtonElement);
-
       var bigButtonElementBounds = {
         left: {
-          max: mapElementCoords.width - bigButtonElementCoords.width,
+          max: Math.ceil(mapElementCoords.width - bigButtonElementCoords.width),
           min: 0
         },
         top: {
-          max: BIG_BUTTON_TOP_MAX - bigButtonElementCoords.height - BIG_BUTTON_ARROW_HEIGHT, // mapElementCoords.height - bigButtonElementCoords.height - BIG_BUTTON_ARROW_HEIGHT
-          min: BIG_BUTTON_TOP_MIN - bigButtonElementCoords.height - BIG_BUTTON_ARROW_HEIGHT
+          max: Math.ceil(BIG_BUTTON_TOP_MAX - bigButtonElementCoords.height - BIG_BUTTON_ARROW_HEIGHT),
+          min: Math.ceil(BIG_BUTTON_TOP_MIN - bigButtonElementCoords.height - BIG_BUTTON_ARROW_HEIGHT)
         }
       };
 
@@ -138,8 +130,8 @@
           y: (startCoords.y - moveEvt.clientY)
         };
 
-        var newTop = (bigButtonElement.offsetTop - shift.y);
-        var newLeft = (bigButtonElement.offsetLeft - shift.x);
+        var newTop = Math.ceil(bigButtonElement.offsetTop - shift.y);
+        var newLeft = Math.ceil(bigButtonElement.offsetLeft - shift.x);
 
         if (newLeft < bigButtonElementBounds.left.min) {
           newLeft = bigButtonElementBounds.left.min;
@@ -153,18 +145,29 @@
           newTop = bigButtonElementBounds.top.max;
         }
 
+        var startCoordsBouds = {
+          x: {
+            min: Math.ceil(mapElementCoords.left + bigButtonElementCoords.width / 2),
+            max: Math.ceil(mapElementCoords.left + mapElementCoords.width - bigButtonElementCoords.width / 2),
+          },
+          y: {
+            min: Math.ceil(bigButtonElementBounds.top.min + bigButtonElementCoords.height / 2),
+            max: Math.ceil(bigButtonElementBounds.top.max + bigButtonElementCoords.height / 2),
+          }
+        };
+
         var startCoordsX = moveEvt.clientX;
-        if (startCoordsX < mapElementCoords.left + bigButtonElementCoords.width / 2) {
-          startCoordsX = mapElementCoords.left + bigButtonElementCoords.width / 2;
-        } else if (startCoordsX > mapElementCoords.left + mapElementCoords.width - bigButtonElementCoords.width / 2) {
-          startCoordsX = mapElementCoords.left + mapElementCoords.width - bigButtonElementCoords.width / 2;
+        if (startCoordsX < startCoordsBouds.x.min) {
+          startCoordsX = startCoordsBouds.x.min;
+        } else if (startCoordsX > startCoordsBouds.x.max) {
+          startCoordsX = startCoordsBouds.x.max;
         }
 
         var startCoordsY = moveEvt.clientY;
-        if (startCoordsY < bigButtonElementBounds.top.min + bigButtonElementCoords.height / 2) {
-          startCoordsY = bigButtonElementBounds.top.min + bigButtonElementCoords.height / 2;
-        } else if (startCoordsY > bigButtonElementBounds.top.max + bigButtonElementCoords.height / 2) {
-          startCoordsY = bigButtonElementBounds.top.max + bigButtonElementCoords.height / 2;
+        if (startCoordsY < startCoordsBouds.y.min) {
+          startCoordsY = startCoordsBouds.y.min;
+        } else if (startCoordsY > startCoordsBouds.y.max) {
+          startCoordsY = startCoordsBouds.y.max;
         }
 
         startCoords = {
@@ -200,6 +203,10 @@
       if (evt.keyCode === window.constants.ENTER_KEY_CODE) {
         enablePage();
       }
+    });
+
+    window.addEventListener('resize', function () {
+      mapElementCoords = window.tools.getCoords(mapElement);
     });
 
     if (!mapElement.classList.contains(mapElementRequiredClass)) {
