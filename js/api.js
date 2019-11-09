@@ -15,5 +15,5 @@
 
   window.api = {
     getOffers: getOffers
-  }
+  };
 })();
