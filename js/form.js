@@ -23,6 +23,7 @@
 
   var mapFiltersElement = document.querySelector('.map__filters');
   var mapFiltersElementInputs = mapFiltersElement.querySelectorAll('fieldset,input,select');
+  var mapFiltersHousingTypeElement = mapFiltersElement.querySelector('select[name=housing-type]');
   /* Constants END */
 
   /* Code START */
@@ -139,6 +140,16 @@
 
     adFormTimeoutElement.addEventListener('change', function () {
       adFormTimeinElement.value = adFormTimeoutElement.value;
+    });
+
+    mapFiltersHousingTypeElement.addEventListener('change', function (evt) {
+      var offersCache = window.map.getOffersCache();
+      if (offersCache) {
+        window.map.clearMapPins();
+        window.map.fitMapWithOffers(offersCache.filter(function (element) {
+          return element.offer.type === evt.target.value;
+        }));
+      }
     });
   };
 

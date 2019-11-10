@@ -2,11 +2,10 @@
 
 (function () {
   var API_OFFERS_URL = 'https://js.dump.academy/keksobooking/data';
-  var DEFAULT_OFFERS_QUANTITY = 8;
 
-  var getOffers = function (onSuccess, onError, quantity) {
+  var getOffers = function (onSuccess, onError) {
     var _onSuccess = function (data) {
-      onSuccess(data.slice(0, quantity || DEFAULT_OFFERS_QUANTITY));
+      onSuccess(data);
     };
 
     var Request = new window.urllib.Request(_onSuccess, onError);

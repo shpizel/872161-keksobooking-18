@@ -2,6 +2,7 @@
 
 (function () {
   /* Constants START */
+  var MAP_OFFERS_MAX = 5;
   var BIG_BUTTON_ARROW_HEIGHT = 10;
   var BIG_BUTTON_TOP_MIN = 130;
   var BIG_BUTTON_TOP_MAX = 630;
@@ -17,13 +18,14 @@
   var renderedCard;
   var mapElementCoords = window.tools.getCoords(mapElement);
   var pageReady = false;
+  var offersCache;
   /* Variabled END */
 
   /* Code START */
   var fitMapWithOffers = function (offers) {
     if (offers.length > 0) {
       var fragment = document.createDocumentFragment();
-      offers.forEach(function (offer) {
+      offers.slice(0, MAP_OFFERS_MAX).forEach(function (offer) {
         fragment.appendChild(window.pin.getOfferPinElement(offer));
       });
       mapPinsElement.appendChild(fragment);
@@ -91,6 +93,8 @@
   var initializeMap = function () {
     var enablePage = function () {
       var onSuccess = function (offers) {
+        offersCache = offers;
+
         window.dialogs.closeErrorDialog();
 
         if (mapElement.classList.contains(mapElementRequiredClass)) {
@@ -234,11 +238,17 @@
     // fillAdFormAddress();
   };
 
+  var getOffersCache = function () {
+    return offersCache;
+  };
+
   window.map = {
     showCard: showCard,
     clearMapPins: clearMapPins,
     centerPin: centerPin,
-    disablePage: disablePage
+    disablePage: disablePage,
+    fitMapWithOffers: fitMapWithOffers,
+    getOffersCache: getOffersCache
   };
 
   initializeMap();
