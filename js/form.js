@@ -23,6 +23,7 @@
 
   var mapFiltersElement = document.querySelector('.map__filters');
   var mapFiltersElementInputs = mapFiltersElement.querySelectorAll('fieldset,input,select');
+  var mapFiltersHousingTypeElement = mapFiltersElement.querySelector('select[name=housing-type]');
   /* Constants END */
 
   /* Code START */
@@ -50,6 +51,15 @@
 
     if (adFormElement.classList.contains(adFormRequiredClass)) {
       adFormElement.classList.remove(adFormRequiredClass);
+    }
+  };
+
+  var disableForms = function () {
+    disableElements(adFormElementInputs);
+    disableElements(mapFiltersElementInputs);
+
+    if (!adFormElement.classList.contains(adFormRequiredClass)) {
+      adFormElement.classList.add(adFormRequiredClass);
     }
   };
 
@@ -88,6 +98,26 @@
       if (!evt.target.checkValidity()) {
         evt.preventDefault();
       }
+
+      /*
+      evt.preventDefault();
+      if (evt.target.checkValidity()) {
+        var onSuccess = function () {
+          adFormElement.reset();
+          window.map.clearMapPins();
+          window.map.centerPin();
+          window.map.disablePage();
+          window.dialogs.showSuccessDialog();
+        };
+        var onError = function () {
+          window.dialogs.showErrorDialog(sendFormData);
+        };
+        var Request = new window.urllib.Request(onSuccess, onError);
+        var sendFormData = function () {
+          Request.exec(adFormElement.action, 'POST', new FormData(adFormElement));
+        };
+        sendFormData();
+      }*/
     });
 
     disableElements(adFormElementInputs);
@@ -111,11 +141,22 @@
     adFormTimeoutElement.addEventListener('change', function () {
       adFormTimeinElement.value = adFormTimeoutElement.value;
     });
+
+    mapFiltersHousingTypeElement.addEventListener('change', function (evt) {
+      var offersCache = window.map.getOffersCache();
+      if (offersCache) {
+        window.map.clearMapPins();
+        window.map.fitMapWithOffers(offersCache.filter(function (element) {
+          return element.offer.type === evt.target.value;
+        }));
+      }
+    });
   };
 
   window.form = {
     adFormAddressElement: adFormAddressElement,
-    enableForms: enableForms
+    enableForms: enableForms,
+    disableForms: disableForms
   };
 
   initializeForms();

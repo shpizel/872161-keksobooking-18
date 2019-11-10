@@ -2,6 +2,7 @@
 
 (function () {
   /* Constants START */
+  var MAP_OFFERS_MAX = 5;
   var BIG_BUTTON_ARROW_HEIGHT = 10;
   var BIG_BUTTON_TOP_MIN = 130;
   var BIG_BUTTON_TOP_MAX = 630;
@@ -16,32 +17,46 @@
   /* Variables START */
   var renderedCard;
   var mapElementCoords = window.tools.getCoords(mapElement);
+  var pageReady = false;
+  var offersCache;
   /* Variabled END */
 
   /* Code START */
   var fitMapWithOffers = function (offers) {
     if (offers.length > 0) {
       var fragment = document.createDocumentFragment();
-      offers.forEach(function (offer) {
+      offers.slice(0, MAP_OFFERS_MAX).forEach(function (offer) {
         fragment.appendChild(window.pin.getOfferPinElement(offer));
       });
       mapPinsElement.appendChild(fragment);
     }
   };
 
+  var centerPin = function () {
+    var bigButtonCoordinates = window.tools.getCoords(bigButtonElement);
+    bigButtonElement.style.left = Math.ceil(mapElementCoords.width / 2 - bigButtonCoordinates.width / 2) + 'px';
+    bigButtonElement.style.top = Math.ceil(mapElementCoords.height / 2 - bigButtonCoordinates.height / 2) + 'px';
+    fillAdFormAddress();
+  };
+
+  var clearMapPins = function () {
+    mapPinsElement.querySelectorAll('.map__pin').forEach(function (element) {
+      if (!element.classList.contains('map__pin--main')) {
+        element.parentElement.removeChild(element);
+      }
+    });
+  };
+
   var getBigButtonCoordinates = function () {
     var bigButtonElementCoords = window.tools.getCoords(bigButtonElement);
-    if (mapElement.classList.contains(mapElementRequiredClass)) {
-      return {
-        left: Math.ceil(bigButtonElementCoords.left + bigButtonElementCoords.width / 2),
-        top: Math.ceil(bigButtonElementCoords.top + bigButtonElementCoords.height / 2)
-      };
-    }
-
     return {
-      left: Math.ceil(bigButtonElementCoords.left + bigButtonElementCoords.width / 2),
-      top: Math.ceil(bigButtonElementCoords.top + bigButtonElementCoords.height + BIG_BUTTON_ARROW_HEIGHT)
+      left: Math.ceil(bigButtonElement.offsetLeft + bigButtonElementCoords.width / 2),
+      top: Math.ceil(bigButtonElement.offsetTop + bigButtonElementCoords.height + BIG_BUTTON_ARROW_HEIGHT)
     };
+  };
+
+  var fillAdFormAddress = function () {
+    window.form.adFormAddressElement.value = Object.values(getBigButtonCoordinates()).join(', ');
   };
 
   var showCard = function (card) {
@@ -66,32 +81,58 @@
     }
   };
 
+  var disablePage = function () {
+    if (!mapElement.classList.contains(mapElementRequiredClass)) {
+      mapElement.classList.add(mapElementRequiredClass);
+    }
+    window.form.disableForms();
+
+    pageReady = false;
+  };
+
   var initializeMap = function () {
     var enablePage = function () {
-      if (mapElement.classList.contains(mapElementRequiredClass)) {
-        mapElement.classList.remove(mapElementRequiredClass);
-      }
-      fitMapWithOffers(window.data.randomOffers);
-      window.form.enableForms();
-    };
+      var onSuccess = function (offers) {
+        offersCache = offers;
 
-    var fillAdFormAddress = function () {
-      window.form.adFormAddressElement.value = Object.values(getBigButtonCoordinates()).join(', ');
+        window.dialogs.closeErrorDialog();
+
+        if (mapElement.classList.contains(mapElementRequiredClass)) {
+          mapElement.classList.remove(mapElementRequiredClass);
+        }
+        fitMapWithOffers(offers);
+        window.form.enableForms();
+
+        pageReady = true;
+      };
+
+      var onError = function (/* errorCode, errorMsg */) {
+        window.dialogs.showErrorDialog(function () {
+          makeOffersRequest();
+        });
+      };
+
+      var makeOffersRequest = function () {
+        window.api.getOffers(onSuccess, onError);
+      };
+
+      if (!pageReady) {
+        makeOffersRequest();
+      }
     };
 
     bigButtonElement.addEventListener('mousedown', function (evt) {
       evt.preventDefault();
 
       var bigButtonElementCoords = window.tools.getCoords(bigButtonElement);
-
       var bigButtonElementBounds = {
         left: {
-          max: mapElementCoords.width - bigButtonElementCoords.width,
+          max: Math.ceil(mapElementCoords.width - bigButtonElementCoords.width),
           min: 0
         },
         top: {
-          max: BIG_BUTTON_TOP_MAX - bigButtonElementCoords.height - BIG_BUTTON_ARROW_HEIGHT, // mapElementCoords.height - bigButtonElementCoords.height - BIG_BUTTON_ARROW_HEIGHT
-          min: BIG_BUTTON_TOP_MIN - bigButtonElementCoords.height - BIG_BUTTON_ARROW_HEIGHT
+          max: Math.ceil(BIG_BUTTON_TOP_MAX - bigButtonElementCoords.height - BIG_BUTTON_ARROW_HEIGHT),
+          min: Math.ceil(BIG_BUTTON_TOP_MIN - bigButtonElementCoords.height - BIG_BUTTON_ARROW_HEIGHT)
         }
       };
 
@@ -108,8 +149,8 @@
           y: (startCoords.y - moveEvt.clientY)
         };
 
-        var newTop = (bigButtonElement.offsetTop - shift.y);
-        var newLeft = (bigButtonElement.offsetLeft - shift.x);
+        var newTop = Math.ceil(bigButtonElement.offsetTop - shift.y);
+        var newLeft = Math.ceil(bigButtonElement.offsetLeft - shift.x);
 
         if (newLeft < bigButtonElementBounds.left.min) {
           newLeft = bigButtonElementBounds.left.min;
@@ -123,18 +164,29 @@
           newTop = bigButtonElementBounds.top.max;
         }
 
+        var startCoordsBouds = {
+          x: {
+            min: Math.ceil(mapElementCoords.left + bigButtonElementCoords.width / 2),
+            max: Math.ceil(mapElementCoords.left + mapElementCoords.width - bigButtonElementCoords.width / 2),
+          },
+          y: {
+            min: Math.ceil(bigButtonElementBounds.top.min + bigButtonElementCoords.height / 2),
+            max: Math.ceil(bigButtonElementBounds.top.max + bigButtonElementCoords.height / 2),
+          }
+        };
+
         var startCoordsX = moveEvt.clientX;
-        if (startCoordsX < mapElementCoords.left + bigButtonElementCoords.width / 2) {
-          startCoordsX = mapElementCoords.left + bigButtonElementCoords.width / 2;
-        } else if (startCoordsX > mapElementCoords.left + mapElementCoords.width - bigButtonElementCoords.width / 2) {
-          startCoordsX = mapElementCoords.left + mapElementCoords.width - bigButtonElementCoords.width / 2;
+        if (startCoordsX < startCoordsBouds.x.min) {
+          startCoordsX = startCoordsBouds.x.min;
+        } else if (startCoordsX > startCoordsBouds.x.max) {
+          startCoordsX = startCoordsBouds.x.max;
         }
 
         var startCoordsY = moveEvt.clientY;
-        if (startCoordsY < bigButtonElementBounds.top.min + bigButtonElementCoords.height / 2) {
-          startCoordsY = bigButtonElementBounds.top.min + bigButtonElementCoords.height / 2;
-        } else if (startCoordsY > bigButtonElementBounds.top.max + bigButtonElementCoords.height / 2) {
-          startCoordsY = bigButtonElementBounds.top.max + bigButtonElementCoords.height / 2;
+        if (startCoordsY < startCoordsBouds.y.min) {
+          startCoordsY = startCoordsBouds.y.min;
+        } else if (startCoordsY > startCoordsBouds.y.max) {
+          startCoordsY = startCoordsBouds.y.max;
         }
 
         startCoords = {
@@ -157,12 +209,14 @@
         document.removeEventListener('mousemove', onMouseMove);
         bigButtonElement.removeEventListener('mouseup', onMouseUp);
         document.removeEventListener('mouseup', onMouseUp);
+        document.removeEventListener('contextmenu', onMouseUp);
       };
 
       bigButtonElement.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mousemove', onMouseMove);
       bigButtonElement.addEventListener('mouseup', onMouseUp);
       document.addEventListener('mouseup', onMouseUp);
+      document.addEventListener('contextmenu', onMouseUp);
       enablePage();
     });
 
@@ -172,15 +226,29 @@
       }
     });
 
+    window.addEventListener('resize', function () {
+      mapElementCoords = window.tools.getCoords(mapElement);
+    });
+
     if (!mapElement.classList.contains(mapElementRequiredClass)) {
       mapElement.classList.add(mapElementRequiredClass);
     }
 
-    fillAdFormAddress();
+    centerPin();
+    // fillAdFormAddress();
+  };
+
+  var getOffersCache = function () {
+    return offersCache;
   };
 
   window.map = {
-    showCard: showCard
+    showCard: showCard,
+    clearMapPins: clearMapPins,
+    centerPin: centerPin,
+    disablePage: disablePage,
+    fitMapWithOffers: fitMapWithOffers,
+    getOffersCache: getOffersCache
   };
 
   initializeMap();

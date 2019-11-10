@@ -76,6 +76,7 @@
 
   window.data = {
     randomOffers: getRandomOffers(QUANTITY),
+    QUANTITY: QUANTITY
   };
   /* CODE END */
 })();
