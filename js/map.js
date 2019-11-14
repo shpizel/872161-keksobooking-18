@@ -25,21 +25,27 @@
   var fitMapWithOffers = function (offers) {
     if (offers.length > 0) {
       var fragment = document.createDocumentFragment();
-      offers.slice(0, MAP_OFFERS_MAX).forEach(function (offer) {
-        fragment.appendChild(window.pin.getOfferPinElement(offer));
+      offers.forEach(function (offer, index) {
+        if (index <= MAP_OFFERS_MAX - 1) {
+          fragment.appendChild(window.pin.getOfferPinElement(offer));
+        }
       });
       mapPinsElement.appendChild(fragment);
     }
   };
 
-  var centerPin = function () {
+  var fillAdFormAddress = function () {
+    window.adForm.setAddress(Object.values(getBigButtonCoordinates()).join(', '));
+  };
+
+  var centerBigButton = function () {
     var bigButtonCoordinates = window.tools.getCoords(bigButtonElement);
     bigButtonElement.style.left = Math.ceil(mapElementCoords.width / 2 - bigButtonCoordinates.width / 2) + 'px';
     bigButtonElement.style.top = Math.ceil(mapElementCoords.height / 2 - bigButtonCoordinates.height / 2) + 'px';
     fillAdFormAddress();
   };
 
-  var clearMapPins = function () {
+  var clearPins = function () {
     mapPinsElement.querySelectorAll('.map__pin').forEach(function (element) {
       if (!element.classList.contains('map__pin--main')) {
         element.parentElement.removeChild(element);
@@ -55,13 +61,12 @@
     };
   };
 
-  var fillAdFormAddress = function () {
-    window.form.adFormAddressElement.value = Object.values(getBigButtonCoordinates()).join(', ');
-  };
-
   var showCard = function (card) {
     removeCard();
-    card.querySelector('.popup__close').addEventListener('click', removeCard);
+    card.querySelector('.popup__close').addEventListener('click', function () {
+      window.pin.deactivate();
+      removeCard();
+    });
     mapElement.insertBefore(card, document.querySelector('.map__filters-container'));
     renderedCard = mapElement.querySelector('.map__card');
     document.addEventListener('keydown', onEscapePressed);
@@ -69,29 +74,32 @@
 
   var removeCard = function () {
     if (renderedCard) {
-      renderedCard.parentNode.removeChild(renderedCard);
-      document.removeEventListener('keydown', onEscapePressed);
+      window.tools.removeElement(renderedCard);
       renderedCard = null;
+      document.removeEventListener('keydown', onEscapePressed);
     }
   };
 
   var onEscapePressed = function (evt) {
     if (evt.keyCode === window.constants.ESC_KEYCODE) {
+      window.pin.deactivate();
       removeCard();
     }
   };
 
-  var disablePage = function () {
+  var disable = function () {
     if (!mapElement.classList.contains(mapElementRequiredClass)) {
       mapElement.classList.add(mapElementRequiredClass);
     }
-    window.form.disableForms();
-
     pageReady = false;
   };
 
+  var setPageReady = function (ready) {
+    pageReady = ready;
+  };
+
   var initializeMap = function () {
-    var enablePage = function () {
+    var enable = function () {
       var onSuccess = function (offers) {
         offersCache = offers;
 
@@ -101,7 +109,8 @@
           mapElement.classList.remove(mapElementRequiredClass);
         }
         fitMapWithOffers(offers);
-        window.form.enableForms();
+        window.adForm.enable();
+        window.mapFiltersForm.enable();
 
         pageReady = true;
       };
@@ -127,8 +136,8 @@
       var bigButtonElementCoords = window.tools.getCoords(bigButtonElement);
       var bigButtonElementBounds = {
         left: {
-          max: Math.ceil(mapElementCoords.width - bigButtonElementCoords.width),
-          min: 0
+          max: Math.ceil(mapElementCoords.width - bigButtonElementCoords.width / 2),
+          min: -Math.ceil(bigButtonElementCoords.width / 2)
         },
         top: {
           max: Math.ceil(BIG_BUTTON_TOP_MAX - bigButtonElementCoords.height - BIG_BUTTON_ARROW_HEIGHT),
@@ -166,8 +175,8 @@
 
         var startCoordsBouds = {
           x: {
-            min: Math.ceil(mapElementCoords.left + bigButtonElementCoords.width / 2),
-            max: Math.ceil(mapElementCoords.left + mapElementCoords.width - bigButtonElementCoords.width / 2),
+            min: Math.ceil(mapElementCoords.left /* + bigButtonElementCoords.width / 2 */),
+            max: Math.ceil(mapElementCoords.left + mapElementCoords.width /* - bigButtonElementCoords.width / 2 */),
           },
           y: {
             min: Math.ceil(bigButtonElementBounds.top.min + bigButtonElementCoords.height / 2),
@@ -217,12 +226,12 @@
       bigButtonElement.addEventListener('mouseup', onMouseUp);
       document.addEventListener('mouseup', onMouseUp);
       document.addEventListener('contextmenu', onMouseUp);
-      enablePage();
+      enable();
     });
 
     bigButtonElement.addEventListener('keydown', function (evt) {
       if (evt.keyCode === window.constants.ENTER_KEY_CODE) {
-        enablePage();
+        enable();
       }
     });
 
@@ -234,8 +243,7 @@
       mapElement.classList.add(mapElementRequiredClass);
     }
 
-    centerPin();
-    // fillAdFormAddress();
+    centerBigButton();
   };
 
   var getOffersCache = function () {
@@ -244,11 +252,13 @@
 
   window.map = {
     showCard: showCard,
-    clearMapPins: clearMapPins,
-    centerPin: centerPin,
-    disablePage: disablePage,
+    clearPins: clearPins,
+    centerBigButton: centerBigButton,
+    disablePage: disable,
     fitMapWithOffers: fitMapWithOffers,
-    getOffersCache: getOffersCache
+    getOffersCache: getOffersCache,
+    removeCard: removeCard,
+    setPageReady: setPageReady
   };
 
   initializeMap();

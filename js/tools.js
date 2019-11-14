@@ -1,6 +1,10 @@
 'use strict';
 
 (function () {
+  /* Constants START */
+  var DEFAULT_DEBOUNCE_INTERVAL = 500;
+  /* Constants END */
+
   /* Code START */
   var getCoords = function (element) {
     var box = element.getBoundingClientRect();
@@ -60,6 +64,53 @@
     return (rem === 1) ? one : three;
   };
 
+  var disableElements = function (elements) {
+    elements.forEach(function (element) {
+      var targetElement = (element.parentNode.tagName === 'FIELDSET') ? element.parentNode : element;
+      if (!targetElement.hasAttribute('disabled')) {
+        targetElement.setAttribute('disabled', true);
+      }
+    });
+  };
+
+  var enableElements = function (elements) {
+    elements.forEach(function (element) {
+      var targetElement = (element.parentNode.tagName === 'FIELDSET') ? element.parentNode : element;
+      if (targetElement.hasAttribute('disabled') && targetElement.disabled) {
+        targetElement.removeAttribute('disabled');
+      }
+    });
+  };
+
+  var debounce = function (callback, timeout) {
+    var timer;
+
+    return function () {
+      var context = null;
+      var args = arguments;
+
+      var later = function () {
+        timer = null;
+        callback.apply(context, args);
+      };
+
+      clearTimeout(timer);
+      timer = setTimeout(later, timeout || DEFAULT_DEBOUNCE_INTERVAL);
+    };
+  };
+
+  var removeElement = function (element) {
+    if (element.parentNode && element.parentNode.removeChild) {
+      element.parentNode.removeChild(element);
+    }
+  };
+
+  var onEscPressed = function (evt, callback) {
+    if (evt.keyCode === window.constants.ESC_KEYCODE) {
+      callback();
+    }
+  };
+
   window.tools = {
     shuffle: shuffle,
     getRandomNumber: getRandomNumber,
@@ -67,6 +118,11 @@
     getCoords: getCoords,
     addLeadingZero: addLeadingZero,
     pluralize: pluralize,
+    disableElements: disableElements,
+    enableElements: enableElements,
+    debounce: debounce,
+    removeElement: removeElement,
+    onEscPressed: onEscPressed
   };
   /* Code END */
 })();

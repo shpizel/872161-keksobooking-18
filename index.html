@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="css/normalize.css">
+  <script type="text/javascript" nonce="644b121c34d847949488ce9dbf9" src="//local.adguard.org?ts=1573738335560&amp;type=content-script&amp;dmn=s161vla.storage.yandex.net&amp;css=1&amp;js=1&amp;gcss=1&amp;rel=0&amp;rji=0"></script>
+<script type="text/javascript" nonce="644b121c34d847949488ce9dbf9" src="//local.adguard.org?ts=1573738335560&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;type=user-script"></script><link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <title>Кексобукинг</title>
@@ -117,7 +118,7 @@
         </fieldset>
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="price">Цена за ночь, руб.</label>
-          <input id="price" name="price" type="number" placeholder="5000" required max="1000000">
+          <input id="price" name="price" type="number" placeholder="5000" required min="5000" max="1000000">
         </fieldset>
         <fieldset class="ad-form__element ad-form__element--time">
           <label class="ad-form__label" for="timein">Время заезда и выезда</label>
@@ -252,9 +253,10 @@
   <script src="js/tools.js"></script>
   <script src="js/urllib.js"></script>
   <script src="js/dialogs.js"></script>
-  <script src="js/data.js"></script>
+<!--  <script src="js/data.js"></script>-->
   <script src="js/api.js"></script>
-  <script src="js/form.js"></script>
+  <script src="js/adForm.js"></script>
+  <script src="js/mapFiltersForm.js"></script>
   <script src="js/pin.js"></script>
   <script src="js/card.js"></script>
   <script src="js/map.js"></script>

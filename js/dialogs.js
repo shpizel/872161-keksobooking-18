@@ -21,17 +21,27 @@
     }
     var errorDialog = errorDialogTemplate.cloneNode(true);
     var errorButton = errorDialog.querySelector('.error__button');
-    errorButton.addEventListener('click', onRetry);
+    errorButton.addEventListener('click', function () {
+      closeErrorDialog();
+      onRetry();
+    });
     closeSuccessDialog();
     mainBlock.appendChild(errorDialog);
     errorDialogNode = mainBlock.querySelector(ERROR_DIALOG_CLASSNAME);
+    errorDialogNode.addEventListener('click', closeErrorDialog);
+    document.addEventListener('keydown', closeErrorDialogOnEscPressed);
   };
 
   var closeErrorDialog = function () {
     if (errorDialogNode) {
       errorDialogNode.parentElement.removeChild(errorDialogNode);
       errorDialogNode = undefined;
+      document.removeEventListener('keydown', closeErrorDialogOnEscPressed);
     }
+  };
+
+  var closeErrorDialogOnEscPressed = function (evt) {
+    window.tools.onEscPressed(evt, closeErrorDialog);
   };
 
   var showSuccessDialog = function () {

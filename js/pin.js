@@ -2,10 +2,28 @@
 
 (function () {
   /* Constants START */
+  var ACTIVE_PIN_CLASSNAME = 'map__pin--active';
   var offerDOMElementTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   /* Constants END */
 
+  /* Variables START */
+  var activePin;
+  /* Variables END */
+
   /* Code START */
+  var activate = function (element) {
+    deactivate();
+    element.classList.add(ACTIVE_PIN_CLASSNAME);
+    activePin = element;
+  };
+
+  var deactivate = function () {
+    if (activePin && activePin.classList.contains(ACTIVE_PIN_CLASSNAME)) {
+      activePin.classList.remove(ACTIVE_PIN_CLASSNAME);
+      activePin = undefined;
+    }
+  };
+
   var getOfferPinElement = function (offer) {
     var element = offerDOMElementTemplate.cloneNode(true);
     element.style.left = offer.location.x + 'px';
@@ -15,14 +33,15 @@
     img.src = offer.author.avatar;
     img.alt = offer.offer.title;
 
-    element.addEventListener('click', function () {
+    element.addEventListener('click', function (evt) {
+      activate(evt.currentTarget);
       window.map.showCard(window.card.getCard(offer));
     });
 
     element.addEventListener('keydown', function (evt) {
-      /* чтобы не срабатывал клик */
-      evt.preventDefault();
       if (evt.keyCode === window.constants.ENTER_KEY_CODE) {
+        evt.preventDefault();
+        activate(evt.currentTarget);
         window.map.showCard(window.card.getCard(offer));
       }
     });
@@ -31,7 +50,8 @@
   };
 
   window.pin = {
-    getOfferPinElement: getOfferPinElement
+    getOfferPinElement: getOfferPinElement,
+    deactivate: deactivate
   };
   /* Code END */
 })();
