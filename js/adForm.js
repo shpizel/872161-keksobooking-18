@@ -74,13 +74,21 @@
     adFormGuestsElement.style.boxShadow = (failed) ? BOX_SHADOW_RED : '';
   };
 
+  var clearBoxShadow = function (elements) {
+    elements.forEach(function (element) {
+      if (element.style.boxShadow) {
+        element.style.boxShadow = '';
+      }
+    });
+  };
+
   var onReset = function () {
     window.mapFiltersForm.reset();
     window.map.removeCard();
     window.map.clearPins();
     window.map.centerBigButton();
     window.map.setPageReady(false);
-    adFormTitleElement.style.boxShadow = '';
+    clearBoxShadow(adFormElementInputs);
   };
 
   var reset = function () {
