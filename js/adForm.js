@@ -80,32 +80,27 @@
     window.map.clearPins();
     window.map.centerBigButton();
     window.map.setPageReady(false);
+    adFormTitleElement.style.boxShadow = '';
   };
 
   var reset = function () {
     adFormElement.reset();
-    // onReset();
+  };
+
+  var checkTitle = function () {
+    if (adFormTitleElement.value.length > 0 && adFormTitleElement.value.length < 30) {
+      adFormTitleElement.style.boxShadow = BOX_SHADOW_RED;
+      adFormTitleElement.reportValidity();
+    } else {
+      adFormTitleElement.style.boxShadow = '';
+    }
   };
 
   var initEvents = function () {
-    adFormTitleElement.addEventListener('input', function (evt) {
-      var value = evt.currentTarget.value;
-      evt.currentTarget.style.boxShadow = (value.length >= 30) ? '' : BOX_SHADOW_RED;
-      evt.currentTarget.reportValidity();
-    });
-
-    adFormPriceElement.addEventListener('input', function (evt) {
-      var minValue = parseInt(evt.currentTarget.getAttribute('min'), 10) || 0;
-      var maxValue = parseInt(evt.currentTarget.getAttribute('max'), 10);
-      var value = parseInt(evt.currentTarget.value, 10);
-
-      evt.currentTarget.boxShadow = (minValue >= value <= maxValue) ? '' : BOX_SHADOW_RED;
-      evt.currentTarget.reportValidity();
-    });
-
+    adFormTitleElement.addEventListener('input', checkTitle);
     adFormElement.addEventListener('submit', function (evt) {
       evt.preventDefault();
-      if (evt.target.checkValidity()) {
+      if (adFormElement.checkValidity()) {
         var onSuccess = function () {
           reset();
           window.map.disablePage();

@@ -14,8 +14,7 @@
   var mapFiltersHousingPriceElement = mapFiltersElement.querySelector('select[name=housing-price]');
   var mapFiltersHousingRoomsElement = mapFiltersElement.querySelector('select[name=housing-rooms]');
   var mapFiltersHousingGuestsElement = mapFiltersElement.querySelector('select[name=housing-guests]');
-  // var featuresCheckboxes = mapFiltersElement.querySelectorAll('input[name=features]');
-
+  var featuresCheckboxes = mapFiltersElement.querySelectorAll('input[name=features]');
 
   var debounce = window.tools.debounce;
   /* Constants END */
@@ -69,7 +68,23 @@
           });
         }
 
-        // todo: featuresCheckboxes();
+        var selectedFeatures = [];
+        featuresCheckboxes.forEach(function (element) {
+          if (element.checked) {
+            selectedFeatures.push(element.value);
+          }
+        });
+        if (selectedFeatures.length > 0) {
+          filteredOffers = filteredOffers.filter(function (element) {
+            var features = element.offer.features;
+            for (var i = 0; i < selectedFeatures.length; i++) {
+              if (!features.includes(selectedFeatures[i])) {
+                return false;
+              }
+            }
+            return true;
+          });
+        }
 
         window.map.fitMapWithOffers(filteredOffers);
       }
