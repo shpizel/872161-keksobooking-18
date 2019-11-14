@@ -14,7 +14,7 @@
   var mapFiltersHousingPriceElement = mapFiltersElement.querySelector('select[name=housing-price]');
   var mapFiltersHousingRoomsElement = mapFiltersElement.querySelector('select[name=housing-rooms]');
   var mapFiltersHousingGuestsElement = mapFiltersElement.querySelector('select[name=housing-guests]');
-  var featuresCheckboxes = mapFiltersElement.querySelectorAll('input[name=features]');
+  // var featuresCheckboxes = mapFiltersElement.querySelectorAll('input[name=features]');
 
 
   var debounce = window.tools.debounce;
