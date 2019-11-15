@@ -2,12 +2,30 @@
 
 (function () {
   /* Constants START */
-  var offerDOMElementTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
+  var ACTIVE_PIN_CLASS_NAME = 'map__pin--active';
+  var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   /* Constants END */
 
+  /* Variables START */
+  var activePinNode;
+  /* Variables END */
+
   /* Code START */
-  var getOfferPinElement = function (offer) {
-    var element = offerDOMElementTemplate.cloneNode(true);
+  var activate = function (element) {
+    deactivate();
+    element.classList.add(ACTIVE_PIN_CLASS_NAME);
+    activePinNode = element;
+  };
+
+  var deactivate = function () {
+    if (activePinNode && activePinNode.classList.contains(ACTIVE_PIN_CLASS_NAME)) {
+      activePinNode.classList.remove(ACTIVE_PIN_CLASS_NAME);
+      activePinNode = undefined;
+    }
+  };
+
+  var generatePinNode = function (offer) {
+    var element = pinTemplate.cloneNode(true);
     element.style.left = offer.location.x + 'px';
     element.style.top = offer.location.y + 'px';
 
@@ -15,23 +33,23 @@
     img.src = offer.author.avatar;
     img.alt = offer.offer.title;
 
-    element.addEventListener('click', function () {
+    element.addEventListener('click', function (evt) {
+      activate(evt.currentTarget);
       window.map.showCard(window.card.getCard(offer));
     });
 
-    element.addEventListener('keydown', function (evt) {
-      /* чтобы не срабатывал клик */
+    element.addEventListener('keydown', window.tools.onEnterPressed(function (evt) {
       evt.preventDefault();
-      if (evt.keyCode === window.constants.ENTER_KEY_CODE) {
-        window.map.showCard(window.card.getCard(offer));
-      }
-    });
+      activate(evt.currentTarget);
+      window.map.showCard(window.card.getCard(offer));
+    }));
 
     return element;
   };
 
   window.pin = {
-    getOfferPinElement: getOfferPinElement
+    generatePinNode: generatePinNode,
+    deactivate: deactivate
   };
   /* Code END */
 })();

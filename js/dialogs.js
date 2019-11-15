@@ -2,11 +2,12 @@
 
 (function () {
   /* Constants START */
+  var ERROR_DIALOG_CLASS_NAME = '.error';
+  var SUCCESS_DIALOG_CLASS_NAME = '.success';
+
   var errorDialogTemplate = document.querySelector('#error').content;
   var successDialogTemplate = document.querySelector('#success').content;
-  var mainBlock = document.querySelector('main');
-  var ERROR_DIALOG_CLASSNAME = '.error';
-  var SUCCESS_DIALOG_CLASSNAME = '.success';
+  var mainNode = document.querySelector('main');
   /* Constants END */
 
   /* Variables START */
@@ -21,44 +22,49 @@
     }
     var errorDialog = errorDialogTemplate.cloneNode(true);
     var errorButton = errorDialog.querySelector('.error__button');
-    errorButton.addEventListener('click', onRetry);
+    var onErrorButtonClick = function () {
+      closeErrorDialog();
+      onRetry();
+    };
+    errorButton.addEventListener('click', onErrorButtonClick);
     closeSuccessDialog();
-    mainBlock.appendChild(errorDialog);
-    errorDialogNode = mainBlock.querySelector(ERROR_DIALOG_CLASSNAME);
+    mainNode.appendChild(errorDialog);
+    errorDialogNode = mainNode.querySelector(ERROR_DIALOG_CLASS_NAME);
+    errorDialogNode.addEventListener('click', closeErrorDialog);
+    document.addEventListener('keydown', closeErrorDialogOnEscPressed);
   };
 
   var closeErrorDialog = function () {
     if (errorDialogNode) {
-      errorDialogNode.parentElement.removeChild(errorDialogNode);
+      window.tools.removeNode(errorDialogNode);
       errorDialogNode = undefined;
+      document.removeEventListener('keydown', closeErrorDialogOnEscPressed);
     }
   };
+
+  var closeErrorDialogOnEscPressed = window.tools.onEscPressed(closeErrorDialog);
 
   var showSuccessDialog = function () {
     if (successDialogNode) {
       return;
     }
     var successDialog = successDialogTemplate.cloneNode(true);
-    successDialog.querySelector(SUCCESS_DIALOG_CLASSNAME).addEventListener('click', closeSuccessDialog);
+    successDialog.querySelector(SUCCESS_DIALOG_CLASS_NAME).addEventListener('click', closeSuccessDialog);
     document.addEventListener('keydown', closeSuccessDialogOnEscapeKeyDown);
     closeErrorDialog();
-    mainBlock.appendChild(successDialog);
-    successDialogNode = mainBlock.querySelector(SUCCESS_DIALOG_CLASSNAME);
+    mainNode.appendChild(successDialog);
+    successDialogNode = mainNode.querySelector(SUCCESS_DIALOG_CLASS_NAME);
   };
 
   var closeSuccessDialog = function () {
     if (successDialogNode) {
-      successDialogNode.parentNode.removeChild(successDialogNode);
+      window.tools.removeNode(successDialogNode);
       document.removeEventListener('keydown', closeSuccessDialogOnEscapeKeyDown);
       successDialogNode = undefined;
     }
   };
 
-  var closeSuccessDialogOnEscapeKeyDown = function (evt) {
-    if (evt.keyCode === window.constants.ESC_KEYCODE) {
-      closeSuccessDialog();
-    }
-  };
+  var closeSuccessDialogOnEscapeKeyDown = window.tools.onEscPressed(closeSuccessDialog);
 
   window.dialogs = {
     showErrorDialog: showErrorDialog,

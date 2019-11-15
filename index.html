@@ -17,7 +17,6 @@
 
     <!-- Карта объявлений -->
     <section class="map map--faded">
-
       <!-- Метки объявлений -->
       <div class="map__pins">
         <div class="map__overlay">
@@ -117,7 +116,7 @@
         </fieldset>
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="price">Цена за ночь, руб.</label>
-          <input id="price" name="price" type="number" placeholder="5000" required max="1000000">
+          <input id="price" name="price" type="number" placeholder="5000" required min="5000" max="1000000">
         </fieldset>
         <fieldset class="ad-form__element ad-form__element--time">
           <label class="ad-form__label" for="timein">Время заезда и выезда</label>
@@ -173,10 +172,10 @@
           <label class="ad-form__label">Фотографии жилья</label>
           <div class="ad-form__photo-container">
             <div class="ad-form__upload">
-              <input type="file" id="images" name="images" class="ad-form__input visually-hidden">
+              <input type="file" id="images" name="images" multiple class="ad-form__input visually-hidden">
               <label for="images" class="ad-form__drop-zone">Загрузите или&nbsp;перетащите сюда фото</label>
             </div>
-            <div class="ad-form__photo"></div>
+            <!--<div class="ad-form__photo"></div>-->
           </div>
         </fieldset>
         <fieldset class="ad-form__element ad-form__element--submit">
@@ -252,9 +251,9 @@
   <script src="js/tools.js"></script>
   <script src="js/urllib.js"></script>
   <script src="js/dialogs.js"></script>
-  <script src="js/data.js"></script>
   <script src="js/api.js"></script>
-  <script src="js/form.js"></script>
+  <script src="js/adForm.js"></script>
+  <script src="js/mapFiltersForm.js"></script>
   <script src="js/pin.js"></script>
   <script src="js/card.js"></script>
   <script src="js/map.js"></script>
