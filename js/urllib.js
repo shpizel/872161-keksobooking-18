@@ -31,16 +31,6 @@
     this.xhr = xhr;
   };
 
-  /*
-  Request.prototype.setTimeout = function (timeout) {
-    this.xhr.timeout = timeout;
-  };
-
-  Request.prototype.setResponseType = function (responseType) {
-    this.xhr.responseType = responseType;
-  };
-  */
-
   Request.prototype.exec = function (url, method, payload) {
     this.xhr.open(method || DEFAULT_METHOD, url);
     this.xhr.send(payload);

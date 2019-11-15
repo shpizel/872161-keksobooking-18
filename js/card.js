@@ -2,6 +2,13 @@
 
 (function () {
   /* Constants START */
+  var OfferPhotoAttribute = {
+    OFFER_PHOTO_CLASS_NAME: 'popup__photo',
+    OFFER_PHOTO_WIDTH: 45,
+    OFFER_PHOTO_HEIGHT: 40,
+    OFFER_PHOTO_ALT: 'Фотография жилья'
+  };
+
   var OfferType = {
     flat: 'Квартира',
     bungalo: 'Бунгало',
@@ -11,7 +18,7 @@
 
   var pluralize = window.tools.pluralize;
   var template = document.querySelector('#card').content;
-  var removeElement = window.tools.removeElement;
+  var removeElement = window.tools.removeNode;
   /* Constants END */
 
   /* Code START */
@@ -85,11 +92,11 @@
       var photosFragment = document.createDocumentFragment();
       offer.photos.forEach(function (photo) {
         var photoElement = document.createElement('img');
-        photoElement.className = 'popup__photo';
+        photoElement.className = OfferPhotoAttribute.OFFER_PHOTO_CLASS_NAME;
         photoElement.src = photo;
-        photoElement.width = 45;
-        photoElement.height = 40;
-        photoElement.alt = 'Фотография жилья';
+        photoElement.width = OfferPhotoAttribute.OFFER_PHOTO_WIDTH;
+        photoElement.height = OfferPhotoAttribute.OFFER_PHOTO_HEIGHT;
+        photoElement.alt = OfferPhotoAttribute.OFFER_PHOTO_ALT;
         photosFragment.appendChild(photoElement);
       });
       return photosFragment;

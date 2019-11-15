@@ -2,30 +2,30 @@
 
 (function () {
   /* Constants START */
-  var ACTIVE_PIN_CLASSNAME = 'map__pin--active';
-  var offerDOMElementTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
+  var ACTIVE_PIN_CLASS_NAME = 'map__pin--active';
+  var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   /* Constants END */
 
   /* Variables START */
-  var activePin;
+  var activePinNode;
   /* Variables END */
 
   /* Code START */
   var activate = function (element) {
     deactivate();
-    element.classList.add(ACTIVE_PIN_CLASSNAME);
-    activePin = element;
+    element.classList.add(ACTIVE_PIN_CLASS_NAME);
+    activePinNode = element;
   };
 
   var deactivate = function () {
-    if (activePin && activePin.classList.contains(ACTIVE_PIN_CLASSNAME)) {
-      activePin.classList.remove(ACTIVE_PIN_CLASSNAME);
-      activePin = undefined;
+    if (activePinNode && activePinNode.classList.contains(ACTIVE_PIN_CLASS_NAME)) {
+      activePinNode.classList.remove(ACTIVE_PIN_CLASS_NAME);
+      activePinNode = undefined;
     }
   };
 
-  var getOfferPinElement = function (offer) {
-    var element = offerDOMElementTemplate.cloneNode(true);
+  var generatePinNode = function (offer) {
+    var element = pinTemplate.cloneNode(true);
     element.style.left = offer.location.x + 'px';
     element.style.top = offer.location.y + 'px';
 
@@ -48,7 +48,7 @@
   };
 
   window.pin = {
-    getOfferPinElement: getOfferPinElement,
+    generatePinNode: generatePinNode,
     deactivate: deactivate
   };
   /* Code END */

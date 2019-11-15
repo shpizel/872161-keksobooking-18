@@ -9,38 +9,38 @@
     high: [50000, 1000000]
   };
 
-  var mapFiltersElement = document.querySelector('.map__filters');
-  var mapFiltersElementInputs = mapFiltersElement.querySelectorAll('fieldset,input,select');
-  var mapFiltersHousingTypeElement = mapFiltersElement.querySelector('select[name=housing-type]');
-  var mapFiltersHousingPriceElement = mapFiltersElement.querySelector('select[name=housing-price]');
-  var mapFiltersHousingRoomsElement = mapFiltersElement.querySelector('select[name=housing-rooms]');
-  var mapFiltersHousingGuestsElement = mapFiltersElement.querySelector('select[name=housing-guests]');
-  var featuresCheckboxes = mapFiltersElement.querySelectorAll('input[name=features]');
+  var formNode = document.querySelector('.map__filters');
+  var inputsList = formNode.querySelectorAll('fieldset,input,select');
+  var housingTypeNode = formNode.querySelector('select[name=housing-type]');
+  var housingPriceNode = formNode.querySelector('select[name=housing-price]');
+  var housingRoomsNode = formNode.querySelector('select[name=housing-rooms]');
+  var housingGuestsNode = formNode.querySelector('select[name=housing-guests]');
+  var featuresCheckboxesList = formNode.querySelectorAll('input[name=features]');
 
   var debounce = window.tools.debounce;
   /* Constants END */
 
   /* Code START */
   var enable = function () {
-    window.tools.enableElements(mapFiltersElementInputs);
+    window.tools.enableElements(inputsList);
   };
 
   var disable = function () {
-    window.tools.disableElements(mapFiltersElementInputs);
+    window.tools.disableElements(inputsList);
   };
 
   var filterByHousingType = function (offers) {
-    if (mapFiltersHousingTypeElement.value !== ANY_VALUE) {
+    if (housingTypeNode.value !== ANY_VALUE) {
       offers = offers.filter(function (element) {
-        return element.offer.type === mapFiltersHousingTypeElement.value;
+        return element.offer.type === housingTypeNode.value;
       });
     }
     return offers;
   };
 
   var filterByHousingPrice = function (offers) {
-    if (mapFiltersHousingPriceElement.value !== ANY_VALUE) {
-      var mapping = PriceSettings[mapFiltersHousingPriceElement.value];
+    if (housingPriceNode.value !== ANY_VALUE) {
+      var mapping = PriceSettings[housingPriceNode.value];
       var minValue = mapping[0];
       var maxValue = mapping[1];
       offers = offers.filter(function (element) {
@@ -51,17 +51,17 @@
   };
 
   var filterByHousingRooms = function (offers) {
-    if (mapFiltersHousingRoomsElement.value !== ANY_VALUE) {
+    if (housingRoomsNode.value !== ANY_VALUE) {
       offers = offers.filter(function (element) {
-        return element.offer.rooms === parseInt(mapFiltersHousingRoomsElement.value, 10);
+        return element.offer.rooms === parseInt(housingRoomsNode.value, 10);
       });
     }
     return offers;
   };
 
   var filterByHousingGuests = function (offers) {
-    if (mapFiltersHousingGuestsElement.value !== ANY_VALUE) {
-      var guests = parseInt(mapFiltersHousingGuestsElement.value, 10);
+    if (housingGuestsNode.value !== ANY_VALUE) {
+      var guests = parseInt(housingGuestsNode.value, 10);
       offers = offers.filter(function (element) {
         if (guests === 0) {
           return element.offer.guests > 3;
@@ -74,7 +74,7 @@
 
   var filterBySelectedFeatures = function (offers) {
     var selectedFeatures = [];
-    featuresCheckboxes.forEach(function (element) {
+    featuresCheckboxesList.forEach(function (element) {
       if (element.checked) {
         selectedFeatures.push(element.value);
       }
@@ -103,19 +103,18 @@
   };
 
   var initEvents = function () {
-    mapFiltersElement.addEventListener('change', debounce(function () {
+    formNode.addEventListener('change', debounce(function () {
       window.map.removeCard();
       var offersCache = window.map.getOffersCache();
       if (offersCache) {
         window.map.clearPins();
-        var filteredOffers = offersCache.slice();
-        window.map.fitMapWithOffers(filterOffers(filteredOffers));
+        window.map.fitMapWithOffers(filterOffers(offersCache));
       }
     }));
   };
 
   var reset = function () {
-    mapFiltersElement.reset();
+    formNode.reset();
   };
 
   var init = function () {

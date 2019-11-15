@@ -99,7 +99,7 @@
     };
   };
 
-  var removeElement = function (element) {
+  var removeNode = function (element) {
     if (element.parentNode && element.parentNode.removeChild) {
       element.parentNode.removeChild(element);
     }
@@ -124,7 +124,10 @@
   var readFiles = function (callback, availableExts, allFiles) {
     return function (evt) {
       var target = evt.currentTarget;
-      var files = (allFiles) ? Object.values(target.files) : [target.files[0]];
+      var files = Object.values(target.files);
+      if (!allFiles) {
+        files = files.slice(0, 1);
+      }
       files.forEach(function (file) {
         var fileName = file.name.toLowerCase();
         var matches = availableExts.some(function (it) {
@@ -151,7 +154,7 @@
     disableElements: disableElements,
     enableElements: enableElements,
     debounce: debounce,
-    removeElement: removeElement,
+    removeNode: removeNode,
     onEscPressed: onEscPressed,
     onEnterPressed: onEnterPressed,
     readFiles: readFiles
