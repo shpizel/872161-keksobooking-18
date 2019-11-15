@@ -38,13 +38,11 @@
       window.map.showCard(window.card.getCard(offer));
     });
 
-    element.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === window.constants.ENTER_KEY_CODE) {
-        evt.preventDefault();
-        activate(evt.currentTarget);
-        window.map.showCard(window.card.getCard(offer));
-      }
-    });
+    element.addEventListener('keydown', window.tools.onEnterPressed(function (evt) {
+      evt.preventDefault();
+      activate(evt.currentTarget);
+      window.map.showCard(window.card.getCard(offer));
+    }));
 
     return element;
   };

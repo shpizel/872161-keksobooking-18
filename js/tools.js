@@ -105,10 +105,40 @@
     }
   };
 
-  var onEscPressed = function (evt, callback) {
-    if (evt.keyCode === window.constants.ESC_KEYCODE) {
-      callback();
-    }
+  var onEscPressed = function (callback) {
+    return function (evt) {
+      if (evt.keyCode === window.constants.ESC_KEYCODE) {
+        callback.apply(null, arguments);
+      }
+    };
+  };
+
+  var onEnterPressed = function (callback) {
+    return function (evt) {
+      if (evt.keyCode === window.constants.ENTER_KEY_CODE) {
+        callback.apply(null, arguments);
+      }
+    };
+  };
+
+  var readFiles = function (callback, availableExts, allFiles) {
+    return function (evt) {
+      var target = evt.currentTarget;
+      var files = (allFiles) ? Object.values(target.files) : [target.files[0]];
+      files.forEach(function (file) {
+        var fileName = file.name.toLowerCase();
+        var matches = availableExts.some(function (it) {
+          return fileName.endsWith(it);
+        });
+        if (matches) {
+          var reader = new FileReader();
+          reader.addEventListener('load', function () {
+            callback(reader.result);
+          });
+          reader.readAsDataURL(file);
+        }
+      });
+    };
   };
 
   window.tools = {
@@ -122,7 +152,9 @@
     enableElements: enableElements,
     debounce: debounce,
     removeElement: removeElement,
-    onEscPressed: onEscPressed
+    onEscPressed: onEscPressed,
+    onEnterPressed: onEnterPressed,
+    readFiles: readFiles
   };
   /* Code END */
 })();

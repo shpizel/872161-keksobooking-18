@@ -2,11 +2,12 @@
 
 (function () {
   /* Constants START */
+  var ERROR_DIALOG_CLASSNAME = '.error';
+  var SUCCESS_DIALOG_CLASSNAME = '.success';
+
   var errorDialogTemplate = document.querySelector('#error').content;
   var successDialogTemplate = document.querySelector('#success').content;
   var mainBlock = document.querySelector('main');
-  var ERROR_DIALOG_CLASSNAME = '.error';
-  var SUCCESS_DIALOG_CLASSNAME = '.success';
   /* Constants END */
 
   /* Variables START */
@@ -21,10 +22,11 @@
     }
     var errorDialog = errorDialogTemplate.cloneNode(true);
     var errorButton = errorDialog.querySelector('.error__button');
-    errorButton.addEventListener('click', function () {
+    var onErrorButtonClick = function () {
       closeErrorDialog();
       onRetry();
-    });
+    };
+    errorButton.addEventListener('click', onErrorButtonClick);
     closeSuccessDialog();
     mainBlock.appendChild(errorDialog);
     errorDialogNode = mainBlock.querySelector(ERROR_DIALOG_CLASSNAME);
@@ -40,9 +42,7 @@
     }
   };
 
-  var closeErrorDialogOnEscPressed = function (evt) {
-    window.tools.onEscPressed(evt, closeErrorDialog);
-  };
+  var closeErrorDialogOnEscPressed = window.tools.onEscPressed(closeErrorDialog);
 
   var showSuccessDialog = function () {
     if (successDialogNode) {
@@ -64,11 +64,7 @@
     }
   };
 
-  var closeSuccessDialogOnEscapeKeyDown = function (evt) {
-    if (evt.keyCode === window.constants.ESC_KEYCODE) {
-      closeSuccessDialog();
-    }
-  };
+  var closeSuccessDialogOnEscapeKeyDown = window.tools.onEscPressed(closeSuccessDialog);
 
   window.dialogs = {
     showErrorDialog: showErrorDialog,

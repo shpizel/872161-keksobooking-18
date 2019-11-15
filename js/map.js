@@ -15,9 +15,10 @@
   /* Constants END */
 
   /* Variables START */
-  var renderedCard;
   var mapElementCoords = window.tools.getCoords(mapElement);
+  var renderedCard;
   var pageReady = false;
+  var lock = false;
   var offersCache;
   /* Variabled END */
 
@@ -80,12 +81,10 @@
     }
   };
 
-  var onEscapePressed = function (evt) {
-    if (evt.keyCode === window.constants.ESC_KEYCODE) {
-      window.pin.deactivate();
-      removeCard();
-    }
-  };
+  var onEscapePressed = window.tools.onEscPressed(function () {
+    window.pin.deactivate();
+    removeCard();
+  });
 
   var disable = function () {
     if (!mapElement.classList.contains(mapElementRequiredClass)) {
@@ -113,9 +112,11 @@
         window.mapFiltersForm.enable();
 
         pageReady = true;
+        lock = false;
       };
 
       var onError = function (/* errorCode, errorMsg */) {
+        lock = false;
         window.dialogs.showErrorDialog(function () {
           makeOffersRequest();
         });
@@ -125,7 +126,8 @@
         window.api.getOffers(onSuccess, onError);
       };
 
-      if (!pageReady) {
+      if (!pageReady && !lock) {
+        lock = true;
         makeOffersRequest();
       }
     };
@@ -229,11 +231,7 @@
       enable();
     });
 
-    bigButtonElement.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === window.constants.ENTER_KEY_CODE) {
-        enable();
-      }
-    });
+    bigButtonElement.addEventListener('keydown', window.tools.onEnterPressed(enable));
 
     window.addEventListener('resize', function () {
       mapElementCoords = window.tools.getCoords(mapElement);
