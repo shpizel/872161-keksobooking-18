@@ -5,72 +5,56 @@
   var ERROR_DIALOG_CLASS_NAME = '.error';
   var SUCCESS_DIALOG_CLASS_NAME = '.success';
 
-  var errorDialogTemplate = document.querySelector('#error').content;
-  var successDialogTemplate = document.querySelector('#success').content;
+  var errorDialogTemplate = document.querySelector('#error').content.querySelector(ERROR_DIALOG_CLASS_NAME);
+  var successDialogTemplate = document.querySelector('#success').content.querySelector(SUCCESS_DIALOG_CLASS_NAME);
   var mainNode = document.querySelector('main');
   /* Constants END */
 
   /* Variables START */
-  var errorDialogNode;
-  var successDialogNode;
+  var dialogNode;
   /* Variables END */
 
   /* Code START */
-  var showErrorDialog = function (onRetry) {
-    if (errorDialogNode) {
-      return;
-    }
+  var showError = function (retryCallback) {
     var errorDialog = errorDialogTemplate.cloneNode(true);
-    var errorButton = errorDialog.querySelector('.error__button');
-    var onErrorButtonClick = function () {
-      closeErrorDialog();
-      onRetry();
+    var onClick = function () {
+      remove();
     };
-    errorButton.addEventListener('click', onErrorButtonClick);
-    closeSuccessDialog();
+    errorDialog.addEventListener('click', onClick);
+
+    var errorButton = errorDialog.querySelector('.error__button');
+    var onRetry = function () {
+      retryCallback();
+      remove();
+    };
+    errorButton.addEventListener('click', onRetry);
+
     mainNode.appendChild(errorDialog);
-    errorDialogNode = mainNode.querySelector(ERROR_DIALOG_CLASS_NAME);
-    errorDialogNode.addEventListener('click', closeErrorDialog);
-    document.addEventListener('keydown', closeErrorDialogOnEscPressed);
+    dialogNode = mainNode.querySelector(ERROR_DIALOG_CLASS_NAME);
+    document.addEventListener('keydown', onEscPressed);
   };
 
-  var closeErrorDialog = function () {
-    if (errorDialogNode) {
-      window.tools.removeNode(errorDialogNode);
-      errorDialogNode = undefined;
-      document.removeEventListener('keydown', closeErrorDialogOnEscPressed);
-    }
+  var remove = function () {
+    document.removeEventListener('keydown', onEscPressed);
+    window.tools.removeNode(dialogNode);
   };
 
-  var closeErrorDialogOnEscPressed = window.tools.onEscPressed(closeErrorDialog);
+  var onEscPressed = window.tools.onEscPressed(remove);
 
-  var showSuccessDialog = function () {
-    if (successDialogNode) {
-      return;
-    }
+  var showSuccess = function () {
     var successDialog = successDialogTemplate.cloneNode(true);
-    successDialog.querySelector(SUCCESS_DIALOG_CLASS_NAME).addEventListener('click', closeSuccessDialog);
-    document.addEventListener('keydown', closeSuccessDialogOnEscapeKeyDown);
-    closeErrorDialog();
+    var onClick = function () {
+      remove();
+    };
+    successDialog.addEventListener('click', onClick);
+    document.addEventListener('keydown', onEscPressed);
     mainNode.appendChild(successDialog);
-    successDialogNode = mainNode.querySelector(SUCCESS_DIALOG_CLASS_NAME);
+    dialogNode = mainNode.querySelector(SUCCESS_DIALOG_CLASS_NAME);
   };
-
-  var closeSuccessDialog = function () {
-    if (successDialogNode) {
-      window.tools.removeNode(successDialogNode);
-      document.removeEventListener('keydown', closeSuccessDialogOnEscapeKeyDown);
-      successDialogNode = undefined;
-    }
-  };
-
-  var closeSuccessDialogOnEscapeKeyDown = window.tools.onEscPressed(closeSuccessDialog);
 
   window.dialogs = {
-    showErrorDialog: showErrorDialog,
-    closeErrorDialog: closeErrorDialog,
-    showSuccessDialog: showSuccessDialog,
-    closeSuccessDialog: closeSuccessDialog
+    showError: showError,
+    showSuccess: showSuccess
   };
   /* Code END */
 })();

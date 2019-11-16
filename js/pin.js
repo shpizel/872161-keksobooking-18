@@ -20,35 +20,37 @@
   var deactivate = function () {
     if (activePinNode && activePinNode.classList.contains(ACTIVE_PIN_CLASS_NAME)) {
       activePinNode.classList.remove(ACTIVE_PIN_CLASS_NAME);
-      activePinNode = undefined;
     }
   };
 
-  var generatePinNode = function (offer) {
-    var element = pinTemplate.cloneNode(true);
-    element.style.left = offer.location.x + 'px';
-    element.style.top = offer.location.y + 'px';
+  var generateNode = function (offer) {
+    var pinNode = pinTemplate.cloneNode(true);
+    pinNode.style.left = offer.location.x + 'px';
+    pinNode.style.top = offer.location.y + 'px';
 
-    var img = element.querySelector('img');
+    var img = pinNode.querySelector('img');
     img.src = offer.author.avatar;
     img.alt = offer.offer.title;
 
-    element.addEventListener('click', function (evt) {
+    var onClick = function (evt) {
       activate(evt.currentTarget);
-      window.map.showCard(window.card.getCard(offer));
-    });
+      window.map.showCard(window.card.generateNode(offer));
+    };
+    pinNode.addEventListener('click', onClick);
 
-    element.addEventListener('keydown', window.tools.onEnterPressed(function (evt) {
+    var onKeydown = window.tools.onEnterPressed(function (evt) {
       evt.preventDefault();
       activate(evt.currentTarget);
-      window.map.showCard(window.card.getCard(offer));
-    }));
+      var card = window.card.generateNode(offer);
+      window.map.showCard(card);
+    });
+    pinNode.addEventListener('keydown', onKeydown);
 
-    return element;
+    return pinNode;
   };
 
   window.pin = {
-    generatePinNode: generatePinNode,
+    generateNode: generateNode,
     deactivate: deactivate
   };
   /* Code END */

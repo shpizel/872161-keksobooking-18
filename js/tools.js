@@ -64,18 +64,18 @@
     return (rem === 1) ? one : three;
   };
 
-  var disableElements = function (elements) {
-    elements.forEach(function (element) {
-      var targetElement = (element.parentNode.tagName === 'FIELDSET') ? element.parentNode : element;
+  var disableNodes = function (nodes) {
+    nodes.forEach(function (node) {
+      var targetElement = (node.parentNode.tagName === 'FIELDSET') ? node.parentNode : node;
       if (!targetElement.hasAttribute('disabled')) {
         targetElement.setAttribute('disabled', true);
       }
     });
   };
 
-  var enableElements = function (elements) {
-    elements.forEach(function (element) {
-      var targetElement = (element.parentNode.tagName === 'FIELDSET') ? element.parentNode : element;
+  var enableNodes = function (nodes) {
+    nodes.forEach(function (node) {
+      var targetElement = (node.parentNode.tagName === 'FIELDSET') ? node.parentNode : node;
       if (targetElement.hasAttribute('disabled') && targetElement.disabled) {
         targetElement.removeAttribute('disabled');
       }
@@ -100,7 +100,7 @@
   };
 
   var removeNode = function (element) {
-    if (element.parentNode && element.parentNode.removeChild) {
+    if (element && element.parentNode && element.parentNode.removeChild) {
       element.parentNode.removeChild(element);
     }
   };
@@ -151,8 +151,8 @@
     getCoords: getCoords,
     addLeadingZero: addLeadingZero,
     pluralize: pluralize,
-    disableElements: disableElements,
-    enableElements: enableElements,
+    disableElements: disableNodes,
+    enableElements: enableNodes,
     debounce: debounce,
     removeNode: removeNode,
     onEscPressed: onEscPressed,

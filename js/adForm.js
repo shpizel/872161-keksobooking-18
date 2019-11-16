@@ -120,62 +120,77 @@
     });
   };
 
+  var onSubmit = function (evt) {
+    evt.preventDefault();
+    if (formNode.checkValidity()) {
+      var onSuccess = function () {
+        reset();
+        window.map.disablePage();
+        window.adForm.disable();
+        window.mapFiltersForm.disable();
+        window.dialogs.showSuccess();
+      };
+      var onError = function () {
+        window.dialogs.showError(sendFormData);
+      };
+      var Request = new window.urllib.Request(onSuccess, onError);
+      var sendFormData = function () {
+        Request.exec(formNode.action, 'POST', new FormData(formNode));
+      };
+      sendFormData();
+    }
+  };
+
+  var onPhotosChoosen = function (evt) {
+    clearPhotoContainer();
+    window.tools.readFiles(function (blob) {
+      var preview = document.createElement('div');
+      preview.className = OFFER_PHOTO_CLASS_NAME;
+      var image = document.createElement('img');
+      image.src = blob;
+      image.style.width = '100%';
+      image.style.height = '100%';
+      preview.appendChild(image);
+      photosContainerNode.appendChild(preview);
+    }, window.constants.IMAGES_FILE_EXTS, true)(evt);
+  };
+
+  var onAvatarChoosen = window.tools.readFiles(function (blob) {
+    avatarPreviewNode.src = blob;
+  }, window.constants.IMAGES_FILE_EXTS);
+
+  var onTypeNodeChange = function () {
+    var value = typeNode.value;
+    if (MinPrice.hasOwnProperty(value)) {
+      priceNode.setAttribute('min', MinPrice[value]);
+      priceNode.setAttribute('placeholder', MinPrice[value]);
+    }
+  };
+
+  var onGuestsNodeChange = function () {
+    checkRoomsAndGuestsCount();
+  };
+
+  var onRoomNodeChange = onGuestsNodeChange;
+
+  var onTimeinNodeChange = function () {
+    timeoutNode.value = timeinNode.value;
+  };
+
+  var onTimeoutNodeChange = function () {
+    timeinNode.value = timeoutNode.value;
+  };
+
   var initEvents = function () {
     titleNode.addEventListener('input', checkTitle);
-    formNode.addEventListener('submit', function (evt) {
-      evt.preventDefault();
-      if (formNode.checkValidity()) {
-        var onSuccess = function () {
-          reset();
-          window.map.disablePage();
-          window.adForm.disable();
-          window.mapFiltersForm.disable();
-          window.dialogs.showSuccessDialog();
-        };
-        var onError = function () {
-          window.dialogs.showErrorDialog(sendFormData);
-        };
-        var Request = new window.urllib.Request(onSuccess, onError);
-        var sendFormData = function () {
-          Request.exec(formNode.action, 'POST', new FormData(formNode));
-        };
-        sendFormData();
-      }
-    });
-
-    guestsNode.addEventListener('change', checkRoomsAndGuestsCount);
-    roomsNode.addEventListener('change', checkRoomsAndGuestsCount);
-    typeNode.addEventListener('change', function () {
-      var value = typeNode.value;
-      if (MinPrice.hasOwnProperty(value)) {
-        priceNode.setAttribute('min', MinPrice[value]);
-        priceNode.setAttribute('placeholder', MinPrice[value]);
-      }
-    });
-    timeinNode.addEventListener('change', function () {
-      timeoutNode.value = timeinNode.value;
-    });
-    timeoutNode.addEventListener('change', function () {
-      timeinNode.value = timeoutNode.value;
-    });
+    formNode.addEventListener('submit', onSubmit);
+    guestsNode.addEventListener('change', onGuestsNodeChange);
+    roomsNode.addEventListener('change', onRoomNodeChange);
+    typeNode.addEventListener('change', onTypeNodeChange);
+    timeinNode.addEventListener('change', onTimeinNodeChange);
+    timeoutNode.addEventListener('change', onTimeoutNodeChange);
     formNode.addEventListener('reset', onReset);
-    avatarSelectorNode.addEventListener('change', window.tools.readFiles(function (blob) {
-      avatarPreviewNode.src = blob;
-    }, window.constants.IMAGES_FILE_EXTS));
-
-    var onPhotosChoosen = function (evt) {
-      clearPhotoContainer();
-      window.tools.readFiles(function (blob) {
-        var preview = document.createElement('div');
-        preview.className = OFFER_PHOTO_CLASS_NAME;
-        var image = document.createElement('img');
-        image.src = blob;
-        image.style.width = '100%';
-        image.style.height = '100%';
-        preview.appendChild(image);
-        photosContainerNode.appendChild(preview);
-      }, window.constants.IMAGES_FILE_EXTS, true)(evt);
-    };
+    avatarSelectorNode.addEventListener('change', onAvatarChoosen);
     photosSelectorNode.addEventListener('change', onPhotosChoosen);
   };
 
