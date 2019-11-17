@@ -67,8 +67,8 @@
   var disableNodes = function (nodes) {
     nodes.forEach(function (node) {
       var targetElement = (node.parentNode.tagName === 'FIELDSET') ? node.parentNode : node;
-      if (!targetElement.hasAttribute('disabled')) {
-        targetElement.setAttribute('disabled', true);
+      if (!targetElement.disabled) {
+        targetElement.disabled = true;
       }
     });
   };
@@ -76,8 +76,8 @@
   var enableNodes = function (nodes) {
     nodes.forEach(function (node) {
       var targetElement = (node.parentNode.tagName === 'FIELDSET') ? node.parentNode : node;
-      if (targetElement.hasAttribute('disabled') && targetElement.disabled) {
-        targetElement.removeAttribute('disabled');
+      if (targetElement.disabled) {
+        targetElement.disabled = false;
       }
     });
   };
@@ -151,8 +151,8 @@
     getCoords: getCoords,
     addLeadingZero: addLeadingZero,
     pluralize: pluralize,
-    disableElements: disableNodes,
-    enableElements: enableNodes,
+    disableNodes: disableNodes,
+    enableNodes: enableNodes,
     debounce: debounce,
     removeNode: removeNode,
     onEscPressed: onEscPressed,

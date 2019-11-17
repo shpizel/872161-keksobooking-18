@@ -58,7 +58,7 @@
         pluralize(offer.rooms, 'комната', 'комнаты', 'комнат'),
         'для',
         offer.guests,
-        'гостей'
+        pluralize(offer.guests, 'гостя', 'гостей', 'гостей')
       ]).join(' ');
     };
   };
@@ -116,8 +116,8 @@
 
     var offer = offerObject.offer;
 
-    popupPhotosNodes.forEach(function (element) {
-      window.tools.removeNode(element);
+    popupPhotosNodes.forEach(function (node) {
+      window.tools.removeNode(node);
     });
     featuresNode.innerHTML = '';
 

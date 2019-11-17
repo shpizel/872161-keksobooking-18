@@ -9,6 +9,7 @@
   var REQUIRED_CLASS_NAME = 'map--faded';
   var BIG_BUTTON_CLASS_NAME = 'map__pin--main';
   var PIN_CLASS_NAME = 'map__pin';
+  var OFFERS_LOAD_ERROR_MESSAGE = 'Не удалось загрузить похожие объявления';
 
   var mapNode = document.querySelector('.map');
   var pinsNode = mapNode.querySelector('.map__pins');
@@ -18,7 +19,7 @@
 
   /* Variables START */
   var mapCoords = window.tools.getCoords(mapNode);
-  var renderedCard;
+  var cardNode;
   var pageReady = false;
   var lock = false;
   var offersCache;
@@ -48,8 +49,8 @@
 
   var clearPins = function () {
     var selector = '.' + PIN_CLASS_NAME + ':not(.' + BIG_BUTTON_CLASS_NAME + ')';
-    pinsNode.querySelectorAll(selector).forEach(function (element) {
-      window.tools.removeNode(element);
+    pinsNode.querySelectorAll(selector).forEach(function (node) {
+      window.tools.removeNode(node);
     });
   };
 
@@ -69,12 +70,12 @@
     };
     card.querySelector('.popup__close').addEventListener('click', onClick);
     mapNode.insertBefore(card, mapFiltersContainer);
-    renderedCard = mapNode.querySelector('.map__card');
+    cardNode = mapNode.querySelector('.map__card');
     document.addEventListener('keydown', onEscPressed);
   };
 
   var removeCard = function () {
-    window.tools.removeNode(renderedCard);
+    window.tools.removeNode(cardNode);
     document.removeEventListener('keydown', onEscPressed);
   };
 
@@ -110,7 +111,8 @@
 
       var onError = function () {
         lock = false;
-        window.dialogs.showError(function () {
+        window.dialogs.showError(OFFERS_LOAD_ERROR_MESSAGE, function () {
+          lock = true;
           makeOffersRequest();
         });
       };
@@ -168,7 +170,7 @@
           newTop = bigButtonBounds.top.max;
         }
 
-        var startCoordsBouds = {
+        var startCoordsBounds = {
           x: {
             min: Math.ceil(mapCoords.left),
             max: Math.ceil(mapCoords.left + mapCoords.width),
@@ -180,17 +182,17 @@
         };
 
         var startCoordsX = moveEvt.clientX;
-        if (startCoordsX < startCoordsBouds.x.min) {
-          startCoordsX = startCoordsBouds.x.min;
-        } else if (startCoordsX > startCoordsBouds.x.max) {
-          startCoordsX = startCoordsBouds.x.max;
+        if (startCoordsX < startCoordsBounds.x.min) {
+          startCoordsX = startCoordsBounds.x.min;
+        } else if (startCoordsX > startCoordsBounds.x.max) {
+          startCoordsX = startCoordsBounds.x.max;
         }
 
         var startCoordsY = moveEvt.clientY;
-        if (startCoordsY < startCoordsBouds.y.min) {
-          startCoordsY = startCoordsBouds.y.min;
-        } else if (startCoordsY > startCoordsBouds.y.max) {
-          startCoordsY = startCoordsBouds.y.max;
+        if (startCoordsY < startCoordsBounds.y.min) {
+          startCoordsY = startCoordsBounds.y.min;
+        } else if (startCoordsY > startCoordsBounds.y.max) {
+          startCoordsY = startCoordsBounds.y.max;
         }
 
         startCoords = {
@@ -204,6 +206,10 @@
         fillAdFormAddress();
       };
 
+      var onContextMenu = function (contextMenuEvt) {
+        contextMenuEvt.preventDefault();
+      };
+
       var onMouseUp = function (upEvt) {
         upEvt.preventDefault();
 
@@ -213,11 +219,7 @@
         document.removeEventListener('mousemove', onMouseMove);
         bigButtonNode.removeEventListener('mouseup', onMouseUp);
         document.removeEventListener('mouseup', onMouseUp);
-        document.removeEventListener('contextmenu', onMouseUp);
-      };
-
-      var onContextMenu = function (contextMenuEvt) {
-        contextMenuEvt.preventDefault();
+        document.removeEventListener('contextmenu', onContextMenu);
       };
 
       bigButtonNode.addEventListener('mousemove', onMouseMove);
@@ -247,7 +249,15 @@
     return offersCache;
   };
 
+  var reset = function () {
+    removeCard();
+    clearPins();
+    centerBigButton();
+    setPageReady(false);
+  };
+
   window.map = {
+    reset: reset,
     showCard: showCard,
     clearPins: clearPins,
     centerBigButton: centerBigButton,

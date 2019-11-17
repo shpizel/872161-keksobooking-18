@@ -11,45 +11,62 @@
   /* Constants END */
 
   /* Variables START */
-  var dialogNode;
+  var lastDialogNode;
   /* Variables END */
 
   /* Code START */
-  var showError = function (retryCallback) {
-    var errorDialog = errorDialogTemplate.cloneNode(true);
-    var onClick = function () {
-      remove();
-    };
-    errorDialog.addEventListener('click', onClick);
+  var onDialogClick = function () {
+    remove();
+  };
 
-    var errorButton = errorDialog.querySelector('.error__button');
+  var onEscPressed = window.tools.onEscPressed(remove);
+
+  var onMessageClick = function (evt) {
+    evt.stopPropagation();
+  };
+
+  var remove = function () {
+    document.removeEventListener('keydown', onEscPressed);
+    window.tools.removeNode(lastDialogNode);
+  };
+
+  var showError = function (errorMessage, retryCallback) {
+    var dialogNode = errorDialogTemplate.cloneNode(true);
+
+    var messageNode = dialogNode.querySelector('.error__message');
+    messageNode.textContent = errorMessage;
+    messageNode.addEventListener('click', onMessageClick);
+
+    dialogNode.addEventListener('click', onDialogClick);
+
+    var errorButton = dialogNode.querySelector('.error__button');
     var onRetry = function () {
       retryCallback();
       remove();
     };
     errorButton.addEventListener('click', onRetry);
 
-    mainNode.appendChild(errorDialog);
-    dialogNode = mainNode.querySelector(ERROR_DIALOG_CLASS_NAME);
+    mainNode.appendChild(dialogNode);
+    lastDialogNode = mainNode.querySelector(ERROR_DIALOG_CLASS_NAME);
+
     document.addEventListener('keydown', onEscPressed);
   };
 
-  var remove = function () {
-    document.removeEventListener('keydown', onEscPressed);
-    window.tools.removeNode(dialogNode);
-  };
+  var showSuccess = function (successMessage) {
+    var dialogNode = successDialogTemplate.cloneNode(true);
 
-  var onEscPressed = window.tools.onEscPressed(remove);
+    var messageNode = dialogNode.querySelector('.success__message');
+    if (successMessage) {
+      messageNode.textContent = successMessage;
+    }
+    messageNode.addEventListener('click', onMessageClick);
 
-  var showSuccess = function () {
-    var successDialog = successDialogTemplate.cloneNode(true);
-    var onClick = function () {
-      remove();
-    };
-    successDialog.addEventListener('click', onClick);
+    dialogNode.addEventListener('click', onDialogClick);
+
+    mainNode.appendChild(dialogNode);
+    lastDialogNode = mainNode.querySelector(SUCCESS_DIALOG_CLASS_NAME);
+
     document.addEventListener('keydown', onEscPressed);
-    mainNode.appendChild(successDialog);
-    dialogNode = mainNode.querySelector(SUCCESS_DIALOG_CLASS_NAME);
   };
 
   window.dialogs = {

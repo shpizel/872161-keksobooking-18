@@ -17,7 +17,8 @@
 
   var ErrorMessage = {
     INCORRECT_GUESTS_COUNT: 'Некорректное число гостей',
-    NOT_FOR_GUESTS: 'Ожидается выбор "Не для гостей"'
+    NOT_FOR_GUESTS: 'Ожидается выбор "Не для гостей"',
+    FORM_SEND_ERROR: 'Не удалось отправить форму'
   };
 
   var formNode = document.querySelector('.ad-form');
@@ -34,22 +35,23 @@
   var avatarPreviewNode = formNode.querySelector('.ad-form-header__preview img');
   var photosSelectorNode = formNode.querySelector('input[name=images]');
   var photosContainerNode = formNode.querySelector('.ad-form__photo-container');
+  var resetButtonNode = formNode.querySelector('button.ad-form__reset');
   /* Constants END */
 
   /* Code START */
   var setAddress = function (address) {
-    addressNode.setAttribute('value', address);
+    addressNode.value = address;
   };
 
   var enable = function () {
-    window.tools.enableElements(inputsList);
+    window.tools.enableNodes(inputsList);
     if (formNode.classList.contains(REQUIRED_CLASS_NAME)) {
       formNode.classList.remove(REQUIRED_CLASS_NAME);
     }
   };
 
   var disable = function () {
-    window.tools.disableElements(inputsList);
+    window.tools.disableNodes(inputsList);
     if (!formNode.classList.contains(REQUIRED_CLASS_NAME)) {
       formNode.classList.add(REQUIRED_CLASS_NAME);
     }
@@ -62,23 +64,23 @@
     var failed = false;
     if (rooms === 1 && rooms !== guests) {
       guestsNode.setCustomValidity(ErrorMessage.INCORRECT_GUESTS_COUNT);
-      guestsNode.reportValidity();
       failed = true;
     } else if (rooms > 1 && rooms <= 3) {
       if (!(guests >= 1 && guests <= rooms)) {
         guestsNode.setCustomValidity(ErrorMessage.INCORRECT_GUESTS_COUNT);
-        guestsNode.reportValidity();
         failed = true;
       }
     } else if (rooms > 3 && guests !== 0) {
       guestsNode.setCustomValidity(ErrorMessage.NOT_FOR_GUESTS);
-      guestsNode.reportValidity();
       failed = true;
     }
 
     if (!failed) {
       guestsNode.setCustomValidity('');
+    } else {
+      guestsNode.reportValidity();
     }
+
     guestsNode.style.boxShadow = (failed) ? BOX_SHADOW_ERROR_STYLE : '';
   };
 
@@ -91,18 +93,14 @@
   };
 
   var onReset = function () {
+    formNode.reset();
+    actualizePriceNode();
     window.mapFiltersForm.reset();
-    window.map.removeCard();
-    window.map.clearPins();
-    window.map.centerBigButton();
-    window.map.setPageReady(false);
+    window.map.reset();
     clearBoxShadow(inputsList);
     avatarPreviewNode.src = GREY_MUFFIN_URL;
     clearPhotoContainer();
-  };
-
-  var reset = function () {
-    formNode.reset();
+    disableMapAndForms();
   };
 
   var checkTitle = function () {
@@ -120,18 +118,22 @@
     });
   };
 
+  var disableMapAndForms = function () {
+    window.map.disablePage();
+    window.adForm.disable();
+    window.mapFiltersForm.disable();
+  };
+
   var onSubmit = function (evt) {
     evt.preventDefault();
     if (formNode.checkValidity()) {
       var onSuccess = function () {
-        reset();
-        window.map.disablePage();
-        window.adForm.disable();
-        window.mapFiltersForm.disable();
+        formNode.reset();
+        disableMapAndForms();
         window.dialogs.showSuccess();
       };
       var onError = function () {
-        window.dialogs.showError(sendFormData);
+        window.dialogs.showError(ErrorMessage.FORM_SEND_ERROR, sendFormData);
       };
       var Request = new window.urllib.Request(onSuccess, onError);
       var sendFormData = function () {
@@ -159,12 +161,16 @@
     avatarPreviewNode.src = blob;
   }, window.constants.IMAGES_FILE_EXTS);
 
-  var onTypeNodeChange = function () {
+  var actualizePriceNode = function () {
     var value = typeNode.value;
     if (MinPrice.hasOwnProperty(value)) {
-      priceNode.setAttribute('min', MinPrice[value]);
-      priceNode.setAttribute('placeholder', MinPrice[value]);
+      priceNode.min = MinPrice[value];
+      priceNode.placeholder = MinPrice[value];
     }
+  };
+
+  var onTypeNodeChange = function () {
+    actualizePriceNode();
   };
 
   var onGuestsNodeChange = function () {
@@ -189,9 +195,9 @@
     typeNode.addEventListener('change', onTypeNodeChange);
     timeinNode.addEventListener('change', onTimeinNodeChange);
     timeoutNode.addEventListener('change', onTimeoutNodeChange);
-    formNode.addEventListener('reset', onReset);
     avatarSelectorNode.addEventListener('change', onAvatarChoosen);
     photosSelectorNode.addEventListener('change', onPhotosChoosen);
+    resetButtonNode.addEventListener('click', onReset);
   };
 
   var init = function () {

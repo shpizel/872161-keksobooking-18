@@ -31,11 +31,11 @@
 
   /* Code START */
   var enable = function () {
-    window.tools.enableElements(inputsList);
+    window.tools.enableNodes(inputsList);
   };
 
   var disable = function () {
-    window.tools.disableElements(inputsList);
+    window.tools.disableNodes(inputsList);
   };
 
   var checkByHousingType = function (offer) {
