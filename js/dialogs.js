@@ -19,8 +19,6 @@
     remove();
   };
 
-  var onEscPressed = window.tools.onEscPressed(remove);
-
   var onMessageClick = function (evt) {
     evt.stopPropagation();
   };
@@ -29,6 +27,8 @@
     document.removeEventListener('keydown', onEscPressed);
     window.tools.removeNode(lastDialogNode);
   };
+
+  var onEscPressed = window.tools.onEscPressed(remove);
 
   var showError = function (errorMessage, retryCallback) {
     var dialogNode = errorDialogTemplate.cloneNode(true);

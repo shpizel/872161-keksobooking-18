@@ -66,7 +66,7 @@
       if (guests === 0) {
         return offer.guests > 3;
       }
-      return offer.guest === guests;
+      return offer.guests === guests;
     }
     return true;
   };
