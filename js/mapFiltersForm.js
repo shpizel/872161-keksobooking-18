@@ -122,8 +122,9 @@
     formNode.addEventListener('change', debounce(onChange));
   };
 
-  var reset = function () {
+  var resetAndDisable = function () {
     formNode.reset();
+    disable();
   };
 
   var init = function () {
@@ -134,7 +135,7 @@
   window.mapFiltersForm = {
     enable: enable,
     disable: disable,
-    reset: reset
+    resetAndDisable: resetAndDisable
   };
 
   init();

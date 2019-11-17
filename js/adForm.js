@@ -92,15 +92,12 @@
     });
   };
 
-  var onReset = function () {
-    formNode.reset();
-    actualizePriceNode();
-    window.mapFiltersForm.reset();
-    window.map.reset();
-    clearBoxShadow(inputsList);
-    avatarPreviewNode.src = GREY_MUFFIN_URL;
-    clearPhotoContainer();
-    disableMapAndForms();
+  var onResetButtonClick = function (evt) {
+    evt.preventDefault();
+
+    resetAndDisable();
+    window.mapFiltersForm.resetAndDisable();
+    window.map.resetAndDisable();
   };
 
   var checkTitle = function () {
@@ -118,18 +115,22 @@
     });
   };
 
-  var disableMapAndForms = function () {
-    window.map.disablePage();
-    window.adForm.disable();
-    window.mapFiltersForm.disable();
+  var resetAndDisable = function () {
+    formNode.reset();
+    clearBoxShadow(inputsList);
+    actualizePriceNode();
+    avatarPreviewNode.src = GREY_MUFFIN_URL;
+    clearPhotoContainer();
+    disable();
   };
 
   var onSubmit = function (evt) {
     evt.preventDefault();
     if (formNode.checkValidity()) {
       var onSuccess = function () {
-        formNode.reset();
-        disableMapAndForms();
+        resetAndDisable();
+        window.mapFiltersForm.resetAndDisable();
+        window.map.resetAndDisable();
         window.dialogs.showSuccess();
       };
       var onError = function () {
@@ -197,7 +198,7 @@
     timeoutNode.addEventListener('change', onTimeoutNodeChange);
     avatarSelectorNode.addEventListener('change', onAvatarChoosen);
     photosSelectorNode.addEventListener('change', onPhotosChoosen);
-    resetButtonNode.addEventListener('click', onReset);
+    resetButtonNode.addEventListener('click', onResetButtonClick);
   };
 
   var init = function () {

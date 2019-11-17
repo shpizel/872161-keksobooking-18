@@ -249,15 +249,16 @@
     return offersCache;
   };
 
-  var reset = function () {
+  var resetAndDisable = function () {
     removeCard();
     clearPins();
     centerBigButton();
     setPageReady(false);
+    disablePage();
   };
 
   window.map = {
-    reset: reset,
+    resetAndDisable: resetAndDisable,
     showCard: showCard,
     clearPins: clearPins,
     centerBigButton: centerBigButton,
